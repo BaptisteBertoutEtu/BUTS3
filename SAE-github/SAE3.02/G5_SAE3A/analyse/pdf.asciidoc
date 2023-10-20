@@ -1,0 +1,125 @@
+= Analyse
+Baptiste Bertout <author>; Pierre Planchon <author>; Arthur Keller <author>; Gaspard Souliez <author>; Mathis Decoster <author>;
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== 1. Présentation de l'équipe
+
+.**Groupe G5**
+****
+--
+* Baptiste Bertout
+* Pierre Planchon
+* Arthur Keller
+* Gaspard Souliez
+* Mathis Decoster
+--
+****
+
+== 2. Diagramme de cas d'utilisation
+
+****
+
+[#img,caption="Diagramme de cas d'utilisation: "]
+image::Diagramme-utilisation.png[,800,600]
+
+****
+
+== 3. Diagramme de classe
+
+****
+[#img2,caption="Diagramme de cas d'utilisation: "]
+image::diagramme-de-classe.png[,800,600]
+****
+
+
+== 4. Description de l'implémentation
+
+=== I. Tour du chasseur
+
+====
+.Début du tour du montre
+****
+```
+DEBUT
+    Le joueur décide de se deplacer sur une case en utilisant l'interface IHM.
+    Coordinate coord <- coordonnées de la case choisit
+    APPEL move(coord)
+FIN
+```
+****
+
+.Méthode move ( Classe Monster )
+****
+```
+FONCTION move(Coordinate coord)
+
+    SI isGoodMove()
+        NB_TOUR + 1
+        AJOUT DANS path DU COUPLE (coord, NB_TURN)
+        currentCoord <- coord
+    FIN SI
+
+FIN FONCTION
+```
+****
+
+.Méthode isGoodMove ( Classe Monster )
+****
+```
+FONCTION isGoodMove(Coordinate coord)
+
+    RETOURNER isEmptyCell(coord) ET isNext(coord)
+
+FIN FONCTION
+```
+****
+====
+
+=== II. Tour du chasseur
+
+====
+.Début du tour du chasseur
+****
+```
+DEBUT
+    Le joueur décide de tirer sur une case avec l'interface IHM
+    Coordinate coord <- coordonnées de la case choisit
+    APPEL shoot(coord)
+FIN
+```
+****
+
+ 
+.Méthode shoot ( CLasse Hunter.java )
+****
+```
+FONCTION shoot(Coordinate coord)
+
+    notifyObservers(coord)
+
+FIN FONCTION
+```
+****
+
+.Explication de la suite 
+****
+```
+    notifyObservers(coord) appelle la méthode update(Subejct, Object) de l'objet Monster
+
+    La méthode update(Subejct, Object) appelle la méthode notifyObservers(CellEvent event)
+
+    notifyObservers(CellEvent event) appelle la méthode update(Subject, Object) de l'objet Hunter
+    
+    Cette méthode update(Subect, Object) va mettre à jour la variable hunterBoard en changeant l'information courante présente dans hunterBoard aux coordonnées données par 'event', par l'information présente dans 'event' avec la méthode getState() de la classe CellEvent.
+```
+****
+
+====
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

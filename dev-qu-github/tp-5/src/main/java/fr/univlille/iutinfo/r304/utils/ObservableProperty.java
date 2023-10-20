@@ -1,0 +1,16 @@
+package main.java.fr.univlille.iutinfo.r304.utils;
+
+
+public class ObservableProperty extends Subject {
+
+	protected Object value;
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object val) {
+		value = val;
+		notifyObservers(val);
+	}
+}

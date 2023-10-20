@@ -1,0 +1,10 @@
+{
+    "java.project.referencedLibraries": [
+        "C:\\Users\\bapti\\Documents\\cours\\BUT_S3\\SAE\\mini_projet\\groupe-8\\lib\\*.jar"
+    ],
+    "java.project.sourcePaths": [
+        "src/main/java/"
+    ],
+    "java.project.outputPath": "bin",
+    "java.debug.settings.console": "internalConsole"
+}
