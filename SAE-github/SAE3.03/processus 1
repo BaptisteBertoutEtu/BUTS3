@@ -1,0 +1,110 @@
+# générer une paire de clefs pour connection ssh sécurisé :
+
+ssh-keygen
+fichier: /home/infoetu/pierre.planchon.etu/.ssh/id_rsa.pub
+passphrase: ppn 
+
+
+# pour configurer le ssh de sorte à ne plus avoir à rentrer son mdp
+  à chaque connexion :
+
+ssh-copy-id -i /home/infoetu/pierre.planchon.etu/.ssh/id_rsa.pub
+*rentrer le mdp de session*
+ssh dattier.iutinfo.fr
+*rentrer la passphrase*
+
+
+# pour créer une machine virtuelle sur la machine de virtualisation :
+
+vmiut creer matrix
+*créé une machine virtuelle*
+vmiut lister
+*affiche la vm et son identifiant (ex: "matrix" {016d997a-db15-481d-9269-a6174c6e8783})*
+//si le nom est "<inaccessible>" : verifier que je suis sur la machine
+//de virtualisation, sinon c'est que les fichiers de la machine virtuelle
+//ont été éffacés.
+
+
+# pour demarrer la vm
+vmiut demarrer matrix
+# pour l'arreter 
+vmiut arreter matrix
+# pour la supprimer 
+vmiut supprimer matrix
+
+# pour avoir des infos sur la vm
+vmiut info matrix
+
+# pour accéder à la console de la vm
+*se déconnecter de dattier*
+*se reconnecter avec la commande suivante*
+ssh -X dattier.iutinfo.fr
+//-X permet d'avoir l'interface graphique de la console de la vm
+vmiut console matrix
+*la console de la vm s'ouvre*
+
+# pour se connecter en ssh sur la vm depuis dattier
+ssh user@10.42.xx.yy
+//xx.yy se trouve dans les infos de la vm (ip_possible)
+//ou dans le ip a show dans la console de la vm
+
+# pour configurer l'addresse ip de la vm, le routeur qu'elle doit 
+# utiliser ainsi que le serveur DNS
+
+nano /etc/network/interfaces
+*remplacer "dhcp" par "static" à la dernière ligne*
+*ajouter la ligne "address 10.42.171.1/16" pour l'adresse ip*
+*ajouter la ligne "gateway 10.42.0.1" pour le routeur*
+//sauvegarder et quitter le fichier
+nano /etc/resolv.conf
+*vérifier que l'adresse est 10.42.0.1, c'est le DNS*
+//sauvegarder et quitter
+
+//il faut vérifier maintenant que les modifications ont bien été prises en compte
+ifup enp0s3
+*réactivation de l'interface réseau*
+ip a show
+ip route show
+host www.univ-lille.fr
+//vérifier que les adresses correspondent à celles parametrées
+reboot
+*redémarre la machine*
+//re éffectuer les vérifications pour vérifier que la configuration réseau
+//est bien persistante
+
+
+/*
+*on ne peut pas se connecter en ssh a la vm sur le compte root,
+*c'est une sécurité pour éviter de se faire détruire la machine
+*si un tiers à récupéreré le mdp de root.
+*Donc, pour utiliser les droits sudo par ssh, il faut passer par le compte
+*user et utiliser la commande "su -" pour passer en root (cela nécessite 
+*donc le mdp de root ET de user).
+*/
+
+# pour mettre à jour le système
+//une fois connecté en ssh en root :
+apt update && apt full-upgrade
+reboot
+
+# pour installer des outils
+//il faut être en root
+apt-get install [nom de l'outil]
+(ex. d'outils: vim, less, tree, rsync)
+
+# pour faciliter la connexion
+nano ~/.ssh/config
+*écrire :*
+Host virt
+    Hostname dattier.iutinfo.fr
+    ForwardAgent yes
+
+Host vmjump
+    Hostname 10.42.171.1
+    Proxyjump virt
+    User user
+    
+ssh virt
+//permet de se connecter à dattier
+ssh vmjump
+//permet de se connecter à la vm directement

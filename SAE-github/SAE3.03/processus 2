@@ -1,0 +1,33 @@
+# pour changer le nom de la vm
+*sur root sinon pas les perm*
+nano /etc/hostname
+*remplacer "debian" par "matrix"*
+//au redemarrage, le prompt doit être : user@matrix:~$
+nano /etc/hosts
+*remplacer "debian" par "matrix"*
+ping matrix
+//la commande doit fonctionner sans problèmes
+
+# pour installer sudo
+apt-get install sudo
+# pour donner les droits sudo à user
+usermod -aG sudo user OU adduser user sudo
+
+# pour installer postgresql
+apt install postgresql postgresql-client
+# pour verifier que le service est activé et démarré
+systemctl status postgresql
+# pour créer un utilisateur
+su -l postgres (pour se connecter au compte admin postgres)
+createuser -d -P matrix
+# pour créer une base de données matrix avec pour propriétaire matrix
+createdb matrix -O matrix
+
+//pour supprimer un user ou une db : 
+//dropdb matrix
+//dropuser matrix
+//on ne peut pas supp. un user propriétaire, il faut donc supp sa bdd avant
+
+# pour se connecter à la bdd depuis le shell de user
+psql -h localhost -U matrix
+

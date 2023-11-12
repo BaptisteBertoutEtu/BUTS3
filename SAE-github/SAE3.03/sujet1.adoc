@@ -1,0 +1,224 @@
+= Sujet n°1
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Plage d'adresse IP :
+****
+Baptiste : 10.42.116.1-254 +
+Pierre : 10.42.171.1-254
+****
+
+== Connexion à distance
+
+=== Première connexion à la machine de virtualisation
+
+.Machine de virtualisation :
+****
+La machine de virtualisation est la suivante : +
+*dattier.iutinfo.fr* +
+
+Afin de vous connecter sur la machine de virtualisation utilisez la commande suivante : +
+```bash
+    login@phys$ ssh dattier.iutinfo.fr
+```
+
+Une fois la commande lancée, si vous ne vous étiez jamais connecté en SSH sur la machine indiquée, vous aurez un affichage similaire à celui-ci, ne validez rien tant que vous n’aurez pas effectué les vérifications indiquées après: +
+```
+    The authenticity of host 'dattier.iutinfo.fr (172.18.48.20)' can't be established.
+    ED25519 key fingerprint is SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg. +
+    This key is not known by any other names +
+    Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+Ce message vous indique que votre client SSH ne peut vérifier l’identité du serveur SSH. Il vous demande si vous souhaitez faire confiance à ce serveur. +
+
+Pour vérifier si le serveur SSH est bien celui auquel vous pensez vous connecter, il faut vérifier l’empreinte de sa clé. +
+
+Les empreintes des clés du serveur de virtualisation sont les suivantes (une clé différente par algorithme supporté par le serveur): +
+
+Utilisez cette liste pour vérifier l’empreinte de la clé et uniquement si celle-ci correspond, répondez yes à la question de votre client SSH. Votre client SSH ajoutera alors le serveur dans le fichier `$HOME/.ssh/known_hosts` pour indiquer que vous lui faites
+confiance.
+
+|===
+| | Fingerprint | Machine | Algo
+
+| 3072 | SHA256:mPCb5nJD8F6YOg/aDCRjqF/ZW3Ei9iLpzXw5UDCIH8g | dattier.iut-infobio.priv.univ-lille1.fr | (RSA)
+| 256 | SHA256:+XNYpzmoYKDnwaB1xqCA2Yu7mBZEK5zvtfXYw1zDO1Y | dattier.iut-infobio.priv.univ-lille1.fr | (ECDSA)
+| 256 | SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg | dattier.iut-infobio.priv.univ-lille1.fr | (ED25519)
+|===
+
+Après avoir répondu yes, saisissez votre mot de passe quand il vous est demandé. Vous obtenez alors un shell qui vous permet d’exécuter des commandes sur la machine de virtualisation.
+
+****
+
+=== Faciliter la connexion
+
+Pour mettre en place ce que nous venons de décrire, nous devons réaliser ces étapes:
+
+.Création d'une paire de clé :
+****
+Dans la machine physique : +
+```bash
+  login@phys$ ssh-keygen
+```
+Suite à cette commande, on vous demandera deux choses : +
+
+1. un nom de fichier : vous pouvez laisser le nom de fichier par défaut.
+2. une _passphrase_: c’est un mot de passe qui permet de chiffrer le fichier contenant votre clé privé. Il est très important d’utiliser un mot de passe pertinent. Ainsi, si on vous vole le fichier, le voleur ne pourra pas se servir de votre clé.
+****
+
+
+.Transmission de la clé publique au serveur : 
+****
+Quand un utilisateur tente de se connecter à un serveur SSH, celui-ci consulte le fichier $HOME/.ssh/authorized_keys à la recherche de clés publiques autorisées à se connecter pour l’utilisateur. +
+
+Si vous regardez le contenu du fichier `$HOME/.ssh/id_rsa.pub` (cette fois côté client), vous verrez qu’il respecte le même format, à la différence qu’il ne contient qu’une seule clé (et donc qu’une seule ligne). +
+
+Pour transmettre votre clé au serveur, il suffit donc d’ajouter le contenu du fichier id_rsa.pub (de votre machine physique) au
+fichier authorized_keys (de votre machine de virtualisation) +
+
+Pour cela nous allons utiliser la commande suivante : +
+```bash
+  login@phys$ ssh-copy-id -i $HOME/.ssh/id_rsa.pub dattier.iutinfo.fr
+```
+****
+
+
+== Créer et gérer des machines virtuelles
+
+WARNING: Toutes les commandes qui vont être effectué doivent être effectuées dans la machine de virtualisation.  
+
+****
+
+.Création d'une machine virtuelle
+```bash
+  login@virtu$ vmiut creer [nom de la machine]
+```
+
+.Lister les machines virtuelles
+```bash
+  login@virtu$ vmiut lister
+```
+
+.Démarrer la machine virtuelle
+```bash
+  login@virtu$ vmiut demarrer [nom de la machine]
+```
+
+.Arrêter une machine virtuelle
+```bash
+  login@virtu$ vmiut arreter [nom de la machine]
+```
+
+.Supprimer une machine virtuelle
+```bash
+  login@virtu$ vmiut supprimer [nom de la machine]
+```
+
+.Avoir les infos sur une machine virtuelle
+```bash
+  login@virtu$ vmiut info [nom de la machine]
+```
+****
+
+.Quelques informations sur le réseau et la VM :
+****
+Comme vous pouvez le constater, votre machine virtuelle a obtenu une adresse IP dans le réseau 10.42.0.0/16. Il s’agit du réseau virtuel principal. Dans ce réseau, on a : +
+
+|===
+| Machine | Adresse
+
+| Machine de virtualisation | 10.42.0.1
+| Routeur, DNS | 10.42.0.1
+| Adresses dynamiques (attribuées automatiquement) | 10.42.1.0-10.42.99.255
+|===
+
+La machine virtuelle a été créée à partir d’un modèle. Voici les caractéristiques du modèle:  +
+
+* Distribution: Debian GNU/Linux 12 (bookworm) 
+* Utilisateur standard: user, mot de passe: user 
+* Administrateur: root, mot de passe: root 
+* Empreinte des clés SSH serveur: +
+
+|===
+| SHA256:C+oy3vfY9fGCAmwzHCUADu75cFUiOGpp7Y5/zOLJIB4 | (RSA)
+| SHA256:jq4fycPE9bXnOsphH/mkP0ue3KLQP4WEFmXDuYCpLf0 | (ECDSA)
+| SHA256:5CmKzEIqY6qbp0w+sXfHe7/jUDjsPtySwcioO5+BeVo | (ED25519)
+|===
+****
+
+.Utilisation de la VM en console virtuelle :
+****
+Utilisation de la console virtuelle : `vmiut console matrix` +
+Cette commande renvoie une erreur, on doit donc utiliser la commande `ssh -X [nom de la machine de virtualisation]` dans la machine physique.  
+****
+
+.Utilisation de la VM en SSH :
+****
+Utilisation de la commande : `ssh user@[IP]` en remplaçant IP par l'ip de la machine (*informations de la machine*)  
+****
+
+.Changement de la configuration réseau :
+****
+Utiliser la plage d'adresse qui nous est attribuée.  
+
+* Activer la console virtuelle de la machine.
+* Se connecter en tant que `root`.
+* Couper l'interface réseau : `ifdown [nom de l'interface]`
+* Modifiez les fichiers `/etc/network/interfaces` et `/etc/resolv.conf` de façon à ce que la VM ait une adresse statique 10.42.xx.1
+et qu’elle utilise le routeur 10.42.0.1 et serveur DNS 10.42.0.1.
+
+Pour `/etc/network/interfaces` : 
+```bash
+iface enp0s3 inet static
+      address 10.42.xx.1/16
+      gateway 10.42.0.1
+```
+
+* Redémarre l'interface réseau : `ifup [nom de l'interface]`
+* Vérifier l'adresse IP de la machine : `ip a show`
+* Vérifier l’adresse du routeur avec la commande : `ip route show`
+* Vérifier si la configuration DNS fonctionne correctement : `host www.univ-lille.fr`
+* Redémarre la machine virtuelle pour vérifier la persistance de la configuration : `reboot`
+****
+
+== Configurer et mettre à jour la machine virtuelle
+
+.Questions :
+****
+1. Quelle commande avez vous utilisée ? : 
+2. Que se passe-t’il ? :
+3. Pourquoi ? :
+
+1. Quelle est la signification de l’option --login ? :
+2. Pourquoi est-il intéressant de l’utiliser ? :
+****
+
+.Mise à jour:
+****
+Commande : `apt update && apt full-upgrade` +
+Redémarré la machine : `reboot`
+****
+
+.Installation : 
+****
+Commande : `apt install vim` +
+Commande : `apt install less` +
+Commande : `apt install tree` +
+Commande : `apt install rsync`
+****
+
+.Trucs en plus :
+****
+Se rendre sur la machine physique. +
+Se rendre dans le fichier `$HOME/.ssh/config`.
+****
+
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

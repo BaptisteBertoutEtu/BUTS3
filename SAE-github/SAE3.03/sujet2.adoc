@@ -1,0 +1,83 @@
+= Sujet n°2
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+==  Dernière configurations sur la VM
+
+.Changement de nom de machine
+****
+Se rendre dans la machine virtuelle. +
+Editer le fichier `/etc/hostname`. +
+Changer le nom par le nom souhaité. +
+Sauvgarder la modification. +
+
+Vous pouvez vérifier la modification après redémarrage de la machien virtuelle avec la commande `reboot`.
+
+Editer le fichier `/etc/hosts`. +
+Trouver l'ancien nom de votre machine. +
+Le changer par le nouveau. +
+Sauvgarder la modification. +
+
+Vous pouvez vérifier la modification et si tout a fonctionné avec la commande `ping [nom de la machine]`.
+
+****
+
+.Installation et configuration de la commande sudo
+****
+Installer `sudo` avec la commande `apt install sudo`.
+
+Définir un utilisateur comme sudo : (en tant que root) +
+* `usermod -aG sudo "l'utilisateur"` +
+ou +
+* `adduser "l'utilisateur" sudo`
+
+Pour tester si tout a fonctionné, il faut tester une commande quelconque avec `sudo` : +
+`root@matrix:~# su user` +
+`user@matrix:~# sudo [commande]`
+
+Si on ne vous demande pas de mot de passe et que la commande fonctionne, c'est que tout a fontionné.
+****
+
+== Installation et configuration basique d’un serveur de base de données
+
+.Installer postgresql
+****
+Installer postgresql : `apt install postgresql postgresql-client`
+****
+
+.Vérifier le démarrage
+****
+Vérifier qu'il est bien activé et démarré : `systemctl status postgresql`
+
+Si le service n'est pas démarré, ni activer au démarrage, on active et on démarre ainsi : `systemctl enable --now postgresql`
+****
+
+.Création d'un utilisateur
+****
+* `createuser -WPd [nom de l'utilisateur]` avec -W ce qui permet de mettre le mot de passe directement.
+****
+
+.Crétaion d'une base de donnée
+****
+* `createdb [nom de la base] -O [nom de l'utilisateur propriétaire]`
+****
+
+.Suppression d'un utilisateur
+****
+Si vous rencontrer des problèmes avec un des utilisateurs vous pouvez le supprimer avec  la commande : `dropuser [nom de l'utilisateur]`
+
+WARNING: Si vous avez créé une base de donnée avec comme propriétaire l'utilisateur que vous voulez supprimer, vous devez d'abord supprimer la base de donnée.
+****
+
+.Surppression d'une base de donnée
+****
+Si vous rencontrer des problèmes avec une des bases de données vous pouvez la supprimer avec la commande `dropdb [nom de la base de donnée]`
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++
