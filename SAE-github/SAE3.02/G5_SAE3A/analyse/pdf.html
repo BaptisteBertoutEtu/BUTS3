@@ -540,12 +540,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Début du tour du montre</div>
+<div class="paragraph">
+<p>Selon le mode de vue que le joueur aura choisit dans les paramètres, il aura accès a certaines informations du labyrinthe ou à toutes les informations.
+Il aura toujours accès à la taille du labyrinthe, l&#8217;emplacement de la sortie et son propre emplacement.
+La vue du labyrinthe se fait par une IHM simple.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>DEBUT
-    Le joueur décide de se deplacer sur une case en utilisant l'interface IHM.
+    Le joueur décide de se deplacer sur une case en utilisant l'interface IHM, avec un simple clique.
     Coordinate coord &lt;- coordonnées de la case choisit
-    APPEL move(coord)
+    APPEL de la méthode move(coord)
 FIN</code></pre>
 </div>
 </div>
@@ -559,9 +564,13 @@ FIN</code></pre>
 <pre class="highlight"><code>FONCTION move(Coordinate coord)
 
     SI isGoodMove()
-        NB_TOUR + 1
-        AJOUT DANS path DU COUPLE (coord, NB_TURN)
+        lastCoord &lt;- currentCoord
         currentCoord &lt;- coord
+        Ajout dans la Map path de la case choisit
+        Si isExit()
+            Le joueur gagne la partie
+        Sinon
+            notifyObservers() : On met à jour la vue du Monstre
     FIN SI
 
 FIN FONCTION</code></pre>
@@ -576,9 +585,56 @@ FIN FONCTION</code></pre>
 <div class="content">
 <pre class="highlight"><code>FONCTION isGoodMove(Coordinate coord)
 
-    RETOURNER isEmptyCell(coord) ET isNext(coord)
+    Si le paramètre de mouvement est définit sur 4
+        isGoodMoveFour() On vérifie que le déplacement est possible à gauche, en haut, à droite et en bas.
+    Sinon
+        isGoodMoveEight() On vérifie la même chose que pour le mouvement en 4 avec les digonales en plus.
 
 FIN FONCTION</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Méthode isGoodMoveFour ( Classe Monster )</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>FONCTION isGoodMoveFour(Coordinate coord)
+
+    boolean goodCol &lt;- on vérifie que la colonne soit à une colonne de plus ou de moins que celle du monstre.
+    boolean goodRow &lt;- on vérifie que la ligne soit à une ligne de plus ou de moins que celle du monstre.
+    boolean isntWall &lt;- on vérifie que la case sur laquelle on veut se déplacer n'est pas un mur.
+    Si
+        la case selectionnée est en diagonale : RETOURNER false
+    RETOURNER goodCol ET goodRow ET isntWall;
+
+FIN FONCTION</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Méthode isGoodMoveEight ( Classe Monster )</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>FONCTION isGoodMoveEight(Coordinate coord)
+
+    boolean goodCol &lt;- on vérifie que la colonne soit à une colonne de plus ou de moins que celle du monstre.
+    boolean goodRow &lt;- on vérifie que la ligne soit à une ligne de plus ou de moins que celle du monstre.
+    boolean isntWall &lt;- on vérifie que la case sur laquelle on veut se déplacer n'est pas un mur.
+    RETOURNER goodCol ET goodRow ET isntWall ET dontCrossWall();
+
+FIN FONCTION
+
+    * La méthode dontCrossWall() vérifie que le joueur ne traverse pas deux murs en diagonale de la façon suivante :
+
+    M | W
+    -----
+    W | *
+
+    Avec M étant le monstre, W un mur et * l'endroit ou il veut aller.</code></pre>
 </div>
 </div>
 </div>
@@ -593,10 +649,14 @@ FIN FONCTION</code></pre>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Début du tour du chasseur</div>
+<div class="paragraph">
+<p>Le chasseur n&#8217;a accès à aucune informations, si ce n&#8217;est que la taille du labyrinthe.
+La vue du labyrinthe se fait par une IHM simple.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>DEBUT
-    Le joueur décide de tirer sur une case avec l'interface IHM
+    Le joueur décide de tirer sur une case avec l'interface IHM, avec un simple clique.
     Coordinate coord &lt;- coordonnées de la case choisit
     APPEL shoot(coord)
 FIN</code></pre>
@@ -620,16 +680,53 @@ FIN FONCTION</code></pre>
 </div>
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Explication de la suite</div>
+<div class="title">Méthode Update de Monster</div>
+<div class="paragraph">
+<p>notifyObservers(coord) appelle la méthode update(Subejct, Object) de l&#8217;objet Monster
+Pour faciliter la communication entre les classes Hunter et Monster et leurs vues respectives un traitement est fait au début de cette méthode.
+Ce traitement consiste à vérifier que le sujet qui envoie le signale est bien une instance de la classe Hunter et que la donnée transmise est bien une instance de Coordinate</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>    notifyObservers(coord) appelle la méthode update(Subejct, Object) de l'objet Monster
+<pre class="highlight"><code>FONCTION Update(Subject sujet, Object data)
 
-    La méthode update(Subejct, Object) appelle la méthode notifyObservers(CellEvent event)
+    Si (traitement du sujet et de la donnée)
+        lastShoot &lt;- (Coordinate) data
+        notifyObservers() : On informe la vue du Monstre que le chasseur a tiré ce qui permet de l'afficher.
 
-    notifyObservers(CellEvent event) appelle la méthode update(Subject, Object) de l'objet Hunter
+        Si currentCoord == data
+            notifyObservers() : On informe le chasseur qu'il a touché le Monstre
+        Sinon si le chemin traversé par le Monstre contient les coordonnées demandées
+            notifyObservers() : On informe le chasseur de l'information de la case sur laquelle il vient de tirer
+        Sinon si la case est un mur
+            notifyObservers() : On informe le chasseur que c'est un mur
+        Sinon
+            notifyObservers() : On informe le chasseur que c'est une case vide
 
-    Cette méthode update(Subect, Object) va mettre à jour la variable hunterBoard en changeant l'information courante présente dans hunterBoard aux coordonnées données par 'event', par l'information présente dans 'event' avec la méthode getState() de la classe CellEvent.</code></pre>
+FIN FONCTION</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Méthode Update de Hunter</div>
+<div class="paragraph">
+<p>notifyObservers(coord) appelle la méthode update(Subejct, Object) de l&#8217;objet Hunter
+Pour faciliter la communication entre les classes Hunter et Monster et leurs vues respectives un traitement est fait au début de cette méthode.
+Ce traitement consiste à vérifier que le sujet qui envoie le signale est bien une instance de la classe Monster et que la donnée transmise est bien une instance de CellEvent</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>FONCTION Update(Subject sujet, Object data)
+
+    Si (traitement du sujet et de la donnée)
+        Si isMonster()
+            Le chasseur gagne la partie.
+        Sinon
+            notifyObservers() : On informe la vue du chasseur pour qu'il mette à jour la case avec l'inforations donnée.
+
+FIN FONCTION</code></pre>
 </div>
 </div>
 </div>
@@ -643,7 +740,7 @@ FIN FONCTION</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-12 17:49:36 +0200
+Last updated 2023-11-10 00:01:09 +0100
 </div>
 </div>
 </body>

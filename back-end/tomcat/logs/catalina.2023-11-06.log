@@ -1,0 +1,64 @@
+06-Nov-2023 19:25:02.708 SEVERE [main] org.apache.catalina.startup.Catalina.stopServer Impossible de se connecter à [localhost : 8005] (port de base [8005] et offset [0]), Tomcat peut ne pas être en cours d'exécution
+06-Nov-2023 19:25:02.710 SEVERE [main] org.apache.catalina.startup.Catalina.stopServer Erreur lors de l'arrêt de Catalina
+	java.net.ConnectException: Connection refused: connect
+		at java.base/sun.nio.ch.Net.connect0(Native Method)
+		at java.base/sun.nio.ch.Net.connect(Net.java:579)
+		at java.base/sun.nio.ch.Net.connect(Net.java:568)
+		at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:576)
+		at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+		at java.base/java.net.Socket.connect(Socket.java:666)
+		at java.base/java.net.Socket.connect(Socket.java:600)
+		at java.base/java.net.Socket.<init>(Socket.java:509)
+		at java.base/java.net.Socket.<init>(Socket.java:289)
+		at org.apache.catalina.startup.Catalina.stopServer(Catalina.java:692)
+		at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+		at java.base/java.lang.reflect.Method.invoke(Method.java:578)
+		at org.apache.catalina.startup.Bootstrap.stopServer(Bootstrap.java:393)
+		at org.apache.catalina.startup.Bootstrap.main(Bootstrap.java:483)
+06-Nov-2023 19:25:05.377 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Nom version serveur :              Apache Tomcat/10.1.14
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Serveur compilé :                  Oct 9 2023 21:01:11 UTC
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Version du serveur :               10.1.14.0
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Nom de l'OS :                      Windows 11
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Version OS :                       10.0
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Architecture :                     amd64
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Java Home :                        C:\Program Files\Java\jdk-19
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Version JVM :                      19.0.1+10-21
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Fournisseur de la JVM :            Oracle Corporation
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE :                    C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat
+06-Nov-2023 19:25:05.385 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME :                    C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat
+06-Nov-2023 19:25:05.393 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.util.logging.config.file=C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\conf\logging.properties
+06-Nov-2023 19:25:05.393 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+06-Nov-2023 19:25:05.393 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djdk.tls.ephemeralDHKeySize=2048
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.protocol.handler.pkgs=org.apache.catalina.webresources
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.lang=ALL-UNNAMED
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.io=ALL-UNNAMED
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.util=ALL-UNNAMED
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.base/java.util.concurrent=ALL-UNNAMED
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Dcatalina.base=C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Dcatalina.home=C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat
+06-Nov-2023 19:25:05.395 INFO [main] org.apache.catalina.startup.VersionLoggerListener.log Argument de la ligne de commande : -Djava.io.tmpdir=C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\temp
+06-Nov-2023 19:25:05.403 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent La librairie Apache Tomcat Native basée sur APR qui permet des performances optimales dans les environnements de production n'a pas été trouvée sur le java.library.path : [C:\Program Files\Java\jdk-19\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Razer Chroma SDK\bin;C:\Program Files\Razer Chroma SDK\bin;C:\Program Files (x86)\Razer\ChromaBroadcast\bin;C:\Program Files\Razer\ChromaBroadcast\bin;C:\ProgramData\Oracle\Java\javapath;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\windows\system32\config\systemprofile\AppData\Local\Microsoft\WindowsApps;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files (x86)\Keyman\Keyman Developer\;C:\TDM-GCC-64\bin;C:\Program Files\Pandoc\;C:\Ruby32-x64\bin;C:\Program Files\Java\jdk-19\bin;C:\Users\bapti\AppData\Local\Microsoft\WindowsApps;C:\Users\bapti\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\bapti\AppData\Local\Programs\MiKTeX\miktex\bin\x64\;C:\Users\bapti\Documents\cours\BUT_s2\ALL_SAE\SAE_dev\B4;C:\Users\bapti\AppData\Local\GitHubDesktop\bin;.]
+06-Nov-2023 19:25:05.639 INFO [main] org.apache.coyote.AbstractProtocol.init Initialisation du gestionnaire de protocole ["http-nio-8080"]
+06-Nov-2023 19:25:05.649 INFO [main] org.apache.catalina.startup.Catalina.load L'initialisation du serveur a pris [440] millisecondes
+06-Nov-2023 19:25:05.700 INFO [main] org.apache.catalina.core.StandardService.startInternal Démarrage du service [Catalina]
+06-Nov-2023 19:25:05.700 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Démarrage du moteur de Servlets : [Apache Tomcat/10.1.14]
+06-Nov-2023 19:25:05.720 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\docs]
+06-Nov-2023 19:25:06.024 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\docs] de l'application web s'est terminé en [293] ms
+06-Nov-2023 19:25:06.024 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\examples]
+06-Nov-2023 19:25:06.542 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\examples] de l'application web s'est terminé en [518] ms
+06-Nov-2023 19:25:06.543 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\host-manager]
+06-Nov-2023 19:25:06.597 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\host-manager] de l'application web s'est terminé en [54] ms
+06-Nov-2023 19:25:06.599 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\manager]
+06-Nov-2023 19:25:06.640 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\manager] de l'application web s'est terminé en [43] ms
+06-Nov-2023 19:25:06.640 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\ROOT]
+06-Nov-2023 19:25:06.667 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\ROOT] de l'application web s'est terminé en [27] ms
+06-Nov-2023 19:25:06.670 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\servlet-tp1]
+06-Nov-2023 19:25:06.866 INFO [main] org.apache.jasper.servlet.TldScanner.scanJars Au moins un fichier JAR a été analysé pour trouver des TLDs mais il n'en contenait pas, le mode "debug" du journal peut être activé pour obtenir une liste complète de JAR scannés sans succès ; éviter d'analyser des JARs inutilement peut améliorer sensiblement le temps de démarrage et le temps de compilation des JSPs
+06-Nov-2023 19:25:06.876 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\servlet-tp1] de l'application web s'est terminé en [206] ms
+06-Nov-2023 19:25:06.876 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\site]
+06-Nov-2023 19:25:06.894 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\site] de l'application web s'est terminé en [18] ms
+06-Nov-2023 19:25:06.897 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Déploiement du répertoire d'application web [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\test]
+06-Nov-2023 19:25:06.918 INFO [main] org.apache.catalina.startup.HostConfig.deployDirectory Le déploiement du répertoire [C:\Users\bapti\Documents\cours\BUT_S3\back-end\tomcat\webapps\test] de l'application web s'est terminé en [18] ms
+06-Nov-2023 19:25:06.918 INFO [main] org.apache.coyote.AbstractProtocol.start Démarrage du gestionnaire de protocole ["http-nio-8080"]
+06-Nov-2023 19:25:06.965 INFO [main] org.apache.catalina.startup.Catalina.start Le démarrage du serveur a pris [1308] millisecondes
