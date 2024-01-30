@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -38,10 +40,8 @@ import main.java.fr.univlille.view.gameview.allview.allrulesview.TurnOneTwoView;
  * 
  */
 public class RulesView extends View{
-    private static final String IMAGE_NOT_FOUND = "Les images n'ont pas pu être chargées";
+    private static final String IMAGE_NOT_FOUND = "Les images n'ont pas pu être chargées.";
     private Scene s ;
-    private static final double WIDTH = MainView.bounds.getWidth();
-    private static final double HEIGHT = MainView.bounds.getHeight();
     private static final String TITLE = "Règles";  
     private Map<AllRules,VBox> map;
     private final AllRules[] allRules;
@@ -65,8 +65,17 @@ public class RulesView extends View{
         this.allRules = new AllRules[]{AllRules.GENERALRULES, AllRules.UNDERSTANDINGVIEW, AllRules.EXPLAINTURN, AllRules.RULESHUNTERMONSTERVIEW, AllRules.TURNONETWOVIEW, AllRules.TURNNINETENVIEW};
         this.currentRules = 0;
         this.sc = new StringBuilder();
-        this.map = new HashMap<>();
         this.mapButtons = new HashMap<>();
+        this.setMap();
+        this.currentV = this.map.get(AllRules.GENERALRULES);
+        this.start();
+    }
+
+    /**
+     * Méthode {@code setMap} initialise la map des règles avec les vues associées à chaque règle.
+     */
+    private void setMap(){
+        this.map = new HashMap<>();
         this.map.put(AllRules.GENERALRULES, new RuleViewWithoutImage(readRules(RulesView.PATH_GENERAL_RULES)));
         this.map.put(AllRules.UNDERSTANDINGVIEW, new RuleViewWithoutImage(readRules(RulesView.PATH_UNDERSTANDING_RULES)));
         this.map.put(AllRules.EXPLAINTURN, new RuleViewWithoutImage(readRules(RulesView.PATH_EXPLAIN_TURN)));
@@ -87,8 +96,6 @@ public class RulesView extends View{
         } catch (FileNotFoundException e) {
             this.map.put(AllRules.TURNNINETENVIEW, new RuleViewWithoutImage(IMAGE_NOT_FOUND));
         }
-        this.currentV = this.map.get(AllRules.GENERALRULES);
-        this.start();
     }
 
     /**
@@ -156,6 +163,12 @@ public class RulesView extends View{
         return this.map.get(this.allRules[this.currentRules]);
     }
 
+    /**
+     * Méthode {@code changerRules} affiche les règles correspondant à la position spécifiée et ajuste l'état des boutons de navigation.
+     * 
+     * @param i index de la position de la règle à afficher (index de l'enum AllRules).
+     * @return Un conteneur VBox contenant les règles correspondant à la position spécifiée.
+     */ 
     private VBox changerRules(int i){
         if(i==0) {
             this.buttonPrecedent.setDisable(true);
@@ -214,7 +227,9 @@ public class RulesView extends View{
             temp = new Button(""+(i+1));
             temp.setFont(OftenUse.FONT_FOR_BUTTON);
             mapButtons.put(i, temp);
-
+            HBox.setMargin(temp, new Insets(0, 0, 20, 0));
+            DropShadow dropShadow = new DropShadow();
+            temp.setEffect(dropShadow);
         }
         this.currenChoice = mapButtons.get(0);
         this.currenChoice.setBorder(OftenUse.BORDER_FOR_NVAIGABLE_BUTTON);
@@ -226,17 +241,32 @@ public class RulesView extends View{
      */
     public void start(){
         BorderPane bp = new BorderPane();
-        bp.setPrefSize(RulesView.WIDTH, RulesView.HEIGHT-20);
+        bp.setPrefSize(View.WIDTH, View.HEIGHT);
 
 
-        h = new HBox(OftenUse.TEXT_SIZE);
+        this.h = new HBox(OftenUse.TEXT_SIZE);
 
         Label title = new Label("Les règles du jeu");
         title.setFont(OftenUse.FONT_FOR_TITLE);
 
         Button buttonExit = new Button("Quitter les règles");
+        buttonExit.setFont(OftenUse.FONT_FOR_BUTTON);
+
+        HBox.setMargin(buttonExit, OftenUse.MARGE_FOR_BUTTON_EXIT);
+
+        DropShadow dropShadow = new DropShadow();
+        buttonExit.setEffect(dropShadow);
+
         this.buttonSuivant = new Button(">");
+        buttonSuivant.setFont(OftenUse.FONT_FOR_BUTTON);
+
         this.buttonPrecedent = new Button("<");
+        buttonPrecedent.setFont(OftenUse.FONT_FOR_BUTTON);
+        this.buttonPrecedent.setDisable(true);
+
+        BorderPane.setMargin(buttonSuivant, new Insets(0, 20, 0, 0));
+        BorderPane.setMargin(buttonPrecedent, new Insets(0, 0, 0, 20));
+
         bp.setLeft(buttonPrecedent);
         bp.setRight(buttonSuivant);
         BorderPane.setAlignment(buttonPrecedent, Pos.CENTER);
@@ -249,11 +279,7 @@ public class RulesView extends View{
         setAllEventOnNavigableButton(bp);
         
         
-        this.buttonPrecedent.setDisable(true);
         
-        buttonPrecedent.setFont(OftenUse.FONT_FOR_BUTTON);
-        buttonSuivant.setFont(OftenUse.FONT_FOR_BUTTON);
-        buttonExit.setFont(OftenUse.FONT_FOR_BUTTON);
         
         h.setAlignment(Pos.CENTER);
         

@@ -1,0 +1,102 @@
+1
+
+1.1
+# pour installer nginx
+*être en root*
+apt-get install nginx
+//vérifier qu'il est démarré
+systemctl status nginx
+//installer curl
+apt-get install curl
+//verifier qu'on peut acceder au serveur nginx depuis la vm
+curl localhost
+*est censé afficher le code html de la page d'acceuil par défaut de nginx*
+
+1.2
+//il n'est pas possible d'accéder directement au service qui s'éxecute sur la 
+//vm depuis la machine physique car 
+
+# pour résoudre cela, sur la machine physique :
+ssh -L 0.0.0.0:9090:localhost:80 vmjump
+//maintenant tapez l'adresse http://machine-physique.iutinfo.fr:9090
+//le site doit s'afficher
+#pour éviter d'avoir à utiliser l'option -L systématiquement :
+*aller dans .ssh/config sur la machine physique*
+*ajouter la ligne suivante dans Host vmjump*
+LocalForward 0.0.0.0:9090 localhost:80
+
+2
+
+2.1
+#Installation Synapse : copier ça dans le terminal de la machine physique
+sudo apt install -y lsb-release wget apt-transport-https
+sudo wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release -cs) main" |
+sudo tee /etc/apt/sources.list.d/matrix-org.list
+sudo apt update
+sudo apt install matrix-synapse-py3
+
+#une fois cela fait, le gestionnaire de paquets demande le nom de l'instance
+#machine-physique.iutinfo.fr:8008
+#Attention à bien indiquer le port 8008 et à remplacer machine-physique par le nom de votre machine physique.
+#Le serveur écrira ses messages à destination de l’administrateur (les logs) dans le fichier /var/log/matrix-synapse/homeserver.log
+
+2.2
+#Paramétrage de l'accès distant
+//il faut avoir les droits sudo pour modifier le fichier de config de synapse
+su -
+nano /etc/matrix-synapse/homeserver.yaml
+//il faut maintenant ajouter l'adresse 10.42.0.0/16 à la ligne blind.addresses
+ici on a : bind_addresses: ['::1', '127.0.0.1', '10.42.171.1'] 
+
+2.3
+#Paramétrage spécifique pour une instance dans un réseau privé
+sudo nano /etc/matrix-synapse/homeserver.yaml
+//modifier les 2 dernières lignes :
+trusted_key_servers: [] --> ajouter le []
+la ligne en dessous il faut la mettre en commentaire avec un #
+
+2.4
+Utilisation d’une base Postgres
+//toujours dans le fichier de config :
+sudo nano /etc/matrix-synapse/homeserver.yaml
+//modifier le contenu de database:
+database:
+  name: psycopg2
+  args:
+    user: <user> --> matrix
+    password: <pass> --> matrix
+    database: <db> --> matrix
+    host: <host> --> localhost
+    cp_min: 5
+    cp_max: 10
+
+//attention, il y a une autre ligne (juste après) contenant
+//database: /var/lin/matrix-synapse/homeserver.db
+//il faut la mettre en commentaires avec un #.
+Nous avons auparavant créé une base de donnée, il faut la suppr et la recréée:
+sudo su -l postgres
+//une fois connecté en postgres:
+psql -l 
+//pour verif que la db a supprimer est bien là
+dropdb matrix
+createdb --encoding=UTF8 --locale=C --template=template0 --owner=matrix matrix
+psql -l
+//pour verif que la db matrix avec comme owner matrix est bien là
+Ctrl+D pour retourner en user
+sudo systemctl restart matrix-synapse.service 
+//si aucune erreur s'affiche, c'est tout bon (cette commande permet de redemarrer synapse 
+et de vérif qu'il n'a aucun soucis).s
+
+2.5 
+#Création d’utilisateurs
+//dans le fichier config:
+sudo nano /etc/matrix-synapse/homeserver.yaml
+//à la dernière ligne, ajouter une clé :
+registration_shared_secret: <PRIVATE STRING> --> écrire une clé secrète au choix.
+//ici nous choisirons 'secret'
+//fermer le fichier et écrire la commande suivante :
+sudo register_new_matrix_user -k secret
+//ça lance la création d'un user,
+//il faut rentrer le nom le password et mettre 'no' pour Make admin.
+//regarder le résultat

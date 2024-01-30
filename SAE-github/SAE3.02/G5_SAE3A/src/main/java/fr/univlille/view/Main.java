@@ -21,16 +21,20 @@ import main.java.fr.univlille.view.gameview.allview.MainView;
 public class Main extends Application{
 
 	/**
-     * Méthode {@code main} permettant le lancement de l'interface graphique.<br>
+     * Méthode {@code main()} permettant le lancement de l'interface graphique.<br>
+	 * 
+	 * @param args Différents arguments
      */
     public static void main(String[] args) {
 		launch(args);
 	}
 
 	/**
-     * Méthode {@code start} permettant la construction de l'affichage des règles du jeu.
+     * Méthode {@code start()} permettant la construction de l'affichage des règles du jeu.
+	 * 
+	 * @param primaryStage L'Objet Stage permettant de construire l'ensemble du jeu.
      */
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage){
 		new MainView();
 	}
 }

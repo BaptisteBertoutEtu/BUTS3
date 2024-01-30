@@ -23,7 +23,7 @@ import main.java.fr.univlille.utils.OftenUse;
 public class RulesHunterMonsterView extends RuleViewWithImage{
 
     /**
-     * Constructeur de la classe {@link RulesHunterMonsterView} qui permet de construire l'affichage des règles du Chasseur et du Monstre
+     * Constructeur de la classe {@code RulesHunterMonsterView} qui permet de construire l'affichage des règles du Chasseur et du Monstre
      * 
      * @throws FileNotFoundException L'exception est levé si le fichier n'est pas trouvé.
      */
@@ -32,7 +32,7 @@ public class RulesHunterMonsterView extends RuleViewWithImage{
     }
 
     /**
-     * Méthode {@code start} permettant la construction de l'affichage des regles du chasseur et du monstre.<br>
+     * Méthode {@code start()} permettant la construction de l'affichage des regles du chasseur et du monstre.<br>
      * 
      * @throws FileNotFoundException L'exception est levé si le fichier n'est pas trouvé.
      */
@@ -42,7 +42,7 @@ public class RulesHunterMonsterView extends RuleViewWithImage{
         HBox h2 = new HBox(OftenUse.TEXT_SIZE);
         
         Text[] texts = {
-            this.createText("Voici un labyrinthe, dans lequel les cases noires symbolisent les murs, le m symbolise le monstre et le s la sortie:", OftenUse.TEXT_SIZE),
+            this.createText("Voici un labyrinthe, dans lequel les cases noires symbolisent les murs, \"m\" symbolise le monstre et \"s\" la sortie", OftenUse.TEXT_SIZE),
             this.createText("Ce que voit le monstre :", OftenUse.TEXT_SIZE),
             this.createText("Ce que voit le chasseur :", OftenUse.TEXT_SIZE)
         };

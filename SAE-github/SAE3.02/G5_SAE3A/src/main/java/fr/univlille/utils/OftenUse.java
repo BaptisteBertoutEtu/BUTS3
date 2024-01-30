@@ -2,6 +2,7 @@ package main.java.fr.univlille.utils;
 
 import java.util.Random;
 
+import javafx.geometry.Insets;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -10,6 +11,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import main.java.fr.univlille.view.gameview.allview.MainView;
+import main.java.fr.univlille.view.gameview.allview.otherview.NameView;
 
 /**
  * 
@@ -40,7 +43,7 @@ public class OftenUse {
     /**
      * Attribut {@code M_TEXT_FOR_BUTTON} permettant de définir le texte pour un bouton représentant le Monstre.
      */
-    public static final String M_TEXT_FOR_BUTTON = "M ";
+    public static final String M_TEXT_FOR_BUTTON = " M";
 
     /**
      * Attribut {@code S_TEXT_FOR_BUTTON} permettant de définir le texte pour un bouton représentant la Sortie.
@@ -67,17 +70,20 @@ public class OftenUse {
      */
     public static final Color WHITE_COLOR_FOR_TEXT = Color.WHITE;
 
-    public static String STYLE_FOR_GRIDPANE = "-fx-grid-lines-visible : true";
+    /**
+     * Attribut {@code STYLE_FOR_GRIDPANE} permettant de définir la visibilité des lignes du GridPane.
+     */
+    public static final String STYLE_FOR_GRIDPANE = "-fx-grid-lines-visible : true";
+
     /**
      * Attribut {@code BORDER_FOR_NVAIGABLE_BUTTON} permettant de définir les bordures pour les boutons de navigations.
      */
     public static final Border BORDER_FOR_NVAIGABLE_BUTTON = OftenUse.strokeBorder(BLACK_COLOR_FOR_TEXT);
-    //Border.stroke(OftenUse.BLACK_COLOR_FOR_TEXT);
 
     /**
      * Attribut {@code FONT_FOR_TEXT_IN_BUTTON} permettant de définir la police d'écriture des textes des boutons dans le labyrinthe.
      */
-    public static final Font FONT_FOR_TEXT_IN_BUTTON = Font.font(14);
+    public static final Font FONT_FOR_TEXT_IN_BUTTON = Font.font(Math.min(MainView.SCREENWIDTH, MainView.SCREENHEIGHT) * 0.015);
 
     /**
      * Attribut {@code FONT_FOR_TITLE} permettant de définir la police d'écriture des titres.
@@ -119,8 +125,58 @@ public class OftenUse {
      */
     public static final String STYLE_BACKGROUND_RED = "-fx-background-color : red";
 
+    /**
+     * Attribut {@code STYLE_BACKGROUND_GREY} permettant de définir le style à attribuer pour une couleur de fond grise. Utiliser pour l'affichage des cases inconnue pour la vue partielle du Monstre.
+     */
+    public static final String STYLE_BACKGROUND_GREY = "-fx-background-color : grey";
 
-    public static Border strokeBorder(Paint var0){
+    /**
+     * Attribut {@code STYLE_BACKGROUND_BLUE} permettant de définir le style à attribuer pour une couleur de fond bleu. Utiliser pour l'affichage de la cases du monstre.
+     */
+    public static final String STYLE_BACKGROUND_BLUE = "-fx-background-color : lightcoral";
+
+    /**
+     * Attribut {@code SPACE_FOR_NAME_PLAYERS} permettant de définir la taille d'espace utilisé dans la classe {@link NameView}.
+     */
+    public static final int SPACE_FOR_NAME_PLAYERS = 30;
+
+    /**
+     * Attribut {@code SPACE_FOR_BUTTON} permettant de définir la taille d'espace utilisé dans la classe {@link NameView}.
+     */
+    public static final int SPACE_FOR_BUTTON = 20; 
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir la taille d'espace utilisé dans la classe {@link NameView}.
+     */
+    public static final int SPACE_FOR_LABEL_PLAYER = 10;
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir la taille entre les labels.
+     */
+    public static final int SPACE_BETWEEN_LABEL = 20;
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir les marges autour de "tfchoisevalue".
+     */
+    public static final Insets MARGE_FOR_TFCHOICEVALUE = new Insets(0, 10, 0, 10);
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir les marges autour de "tfchoisevalue".
+     */
+    public static final Insets MARGE_FOR_BUTTON_EXIT = new Insets(0, 0, 20, 0);
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir les marges autour de "tfchoisevalue".
+     */
+    public static final Insets MARGE_FOR_BUTTON_SUIVANT = new Insets(0, 20, 0, 0);
+
+    /**
+     * Attribut {@code SPACE_FOR_LABEL_PLAYER} permettant de définir les marges autour de "tfchoisevalue".
+     */
+    public static final Insets MARGE_FOR_BUTTON_PRECEDENT = new Insets(0, 0, 0, 20);
+
+
+    private static Border strokeBorder(Paint var0){
         return new Border(new BorderStroke[]{new BorderStroke(var0, BorderStrokeStyle.SOLID, (CornerRadii)null, (BorderWidths)null)});
     }
 

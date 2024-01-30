@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"com.github.bhlangonijr.chesslib"},{"l":"com.github.bhlangonijr.chesslib.game"},{"l":"com.github.bhlangonijr.chesslib.move"},{"l":"com.github.bhlangonijr.chesslib.pgn"},{"l":"com.github.bhlangonijr.chesslib.util"},{"l":"tp_chess"}]

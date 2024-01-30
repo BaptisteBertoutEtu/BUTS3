@@ -24,7 +24,7 @@ public class Parameters extends Subject{
     /**
      * Paramètre {@code movement} permettant de définir le mode de mouvement du {@code Monstre}.
     */
-    public static AllParameters movement = AllParameters.MOVEMENT_8;
+    public static AllParameters movement = AllParameters.MOVEMENT_8_WITHOUT_PASSING_WALL;
 
     /**
      * Paramètre {@code maxMouvementPartialKnowledgeValue} qui définit le nombre de case maximum que le Monstre peut voir autour de lui 
@@ -59,160 +59,333 @@ public class Parameters extends Subject{
     */
     public static int[] lengthLabyrinth = Parameters.maxLengthLabyrinth;
 
-    public static AllParameters modeJeu = AllParameters.BOTH_PLAYER;
+    /**
+     * Paramètre {@code MAX_PROBABILITY_WALL} qui définit la probabilité maximal d'apparition de mûr.
+     */
+    public static final double MAX_PROBABILITY_WALL = 0.5;
+    
+    /**
+     * Paramètre {@code MIN_PROBABILITY_WALL} qui définit la probabilité minimal d'apparition de mûr.
+     */
+    public static final double MIN_PROBABILITY_WALL = 0.15;
+
+    /**
+     * Paramètre {@code PROBABILITY_WALL} qui définit la probabilité d'apparition de mûr. Ici il est définit au maximum.
+     */
+    public static double probabilityForWall = Parameters.MAX_PROBABILITY_WALL;
+
+    /**
+     * Paramètre {@code choiseLaby} qui définit le choix du labyrinthe, qui peut être soit un labyrinthe prédéfinit soit un labyrinthe aléatoire. <br>
+     * Ici il est définit avec un labyrinthe aléatoire.
+     */
+    public static AllParameters choiseLaby = AllParameters.LABYRAND;
+
+    /**
+     * Paramètre {@code pathForLabyPredef} qui définit le chemin vers un fichier contenant un labyrinthe prédéfinit sous forme de texte.
+     */
+    public static String pathForLabyPredef = "petitLaby.txt";
+
+    /**
+     * Paramètre {@code zoneForSpawnAroundExit} qui définit le rayon autour de la position courante du monstre permettant de définir la zone qui va être affichée.
+     */
+    public static int zoneForSpawnAroundExit = 10;
+
+    /**
+     * Paramètre {@code gameMode} qui définit le mode de jeu. <br>
+     * Ici le mode de jeu est définit sur {@code BOTH_PLAYER}. C'est à dire que les deux entités seront joués par deux humains.
+     */
+    public static AllParameters gameMode = AllParameters.BOTH_PLAYER;
 
     private int height;
     private int width;
-    private int value;
+    private int partialKnowledgeValue;
+    private double proba;
+    private int monster;
+    private int hunter;
 
     /**
-     * Méthode permettant de construire une variable Parameters initialisant la hauteur et la largeur.
+     * Constructeur de la classe {@link Parameters} permettant d'intancier les attributs pouvants être mis à jour par les joueurs.
      */
     public Parameters(){
-        this.height = Parameters.lengthLabyrinth[1];
         this.width = Parameters.lengthLabyrinth[0];
-        this.value = Parameters.mouvementPartialKnowledgeValue;
+        this.height = Parameters.lengthLabyrinth[1];
+        this.partialKnowledgeValue = Parameters.mouvementPartialKnowledgeValue;
+        this.proba = Parameters.probabilityForWall;
+        this.monster = 0;
+        this.hunter = 0;
     }
 
     /**
-     * Méthode {@code setRowMaze} permettant de fixer une nouvelle hauteur (ou nombres de lignes).
+     * Méthode {@code setHeight()} permettant de fixer une nouvelle hauteur (ou nombres de lignes).
      * 
-     * @param nbRow La nouvelle hauteur du labyrinthe ( ou nombre de lignes ).
+     * @param height Ce paramètre représente la nouvelle hauteur du labyrinthe ( ou nombre de lignes ).
      */
-    public void setRowMaze(int nbRow){
-        this.height = nbRow;
+    public void setHeight(int height){
+        this.height = height;
         notifyObservers();
     }
     /**
-     * Méthode {@code setColMaze} permettant de fixer une nouvelle largeur (ou nombres de colonnes).
+     * Méthode {@code setWidth()} permettant de fixer une nouvelle largeur (ou nombres de colonnes).
      * 
-     * @param nbCol La nouvelle largeur du labyrinthe (ou nombres de colonnes).
+     * @param width Ce paramètre représente la nouvelle largeur du labyrinthe (ou nombres de colonnes).
      */
-    public void setColMaze(int nbCol){
-        this.width = nbCol;
+    public void setWidth(int width){
+        this.width = width;
         notifyObservers();
     }
 
     /**
-     * Méthode {@code getHeight} permettant de récupérer la hauteur du labyrinthe.
+     * Méthode {@code getHeight()} permettant de récupérer la hauteur du labyrinthe.
      * 
-     * @return La hauteur du labyrinthe.
+     * @return Cette méthode retourne la hauteur du labyrinthe.
      */
     public int getHeight(){
         return height;
     }
 
     /**
-     * Méthode {@code getWidth} permettant de récupérer la largeur du labyrinthe.
+     * Méthode {@code getWidth()} permettant de récupérer la largeur du labyrinthe.
      * 
-     * @return La largeur du labyrinthe.
+     * @return Cette méthode retourne la largeur du labyrinthe.
      */
     public int getWidth(){
         return width;
     }
 
     /**
-     * Méthode {@code incrementHeight} permettant d'incrémenter la hauteur de 1.
+     * Méthode {@code incrementHeight()} permettant d'incrémenter la hauteur de 1.
      */
     public void incrementHeight(){
-        setRowMaze(height+1);
+        setHeight(height+1);
     }
 
     /**
-     * Méthode {@code decrementHeight} permettant de décrémenter la hauteur de 1.
+     * Méthode {@code decrementHeight()} permettant de décrémenter la hauteur de 1.
      */
     public void decrementHeight(){
-        setRowMaze(height-1);
+        setHeight(height-1);
     }
 
     /**
-     * Méthode {@code incrementWidth} permettant d'incrémenter la largeur de 1.
+     * Méthode {@code incrementWidth()} permettant d'incrémenter la largeur de 1.
      */
     public void incrementWidth(){
-        setColMaze(width+1);
+        setWidth(width+1);
     }
 
     /**
-     * Méthode {@code decrementWidth} permettant de décrémenter la largeur de 1.
+     * Méthode {@code decrementWidth()} permettant de décrémenter la largeur de 1.
      */
     public void decrementWidth(){
-        setColMaze(width-1);
+        setWidth(width-1);
     }
 
     /**
-     * Methode {@code mouvementEight} permettant de changer le paramètre du mouvement et de le passer en 8.
+     * Methode {@code movementEightWithPassingWall()} permettant de changer le paramètre du mouvement et de le passer en mouvement en 8 avec 
+     * la possibilité de passer les murs en diagonale.
      */
-    public void mouvementEight(){
-        Parameters.movement = AllParameters.MOVEMENT_8;
+    public void movementEightWithPassingWall(){
+        Parameters.movement = AllParameters.MOVEMENT_8_WITH_PASSING_WALL;
     }
 
     /**
-     * Methode {@code mouvementFour} permettant de changer le paramètre du mouvement et de le passer en 4.
+     * Methode {@code movementEightWithoutPassingWall()} permettant de changer le paramètre du mouvement et de le passer en mouvement en 8 sans 
+     * la possibilité de passer les murs en diagonale
      */
-    public void mouvementFour(){
+    public void movementEightWithoutPassingWall(){
+        Parameters.movement = AllParameters.MOVEMENT_8_WITHOUT_PASSING_WALL;
+    }
+
+    /**
+     * Methode {@code movementFour()} permettant de changer le paramètre du mouvement et de le passer en mouvement en 4.
+     */
+    public void movementFour(){
         Parameters.movement = AllParameters.MOVEMENT_4;
     }
 
     /**
-     * Methode {@code knowledgeComplete} permettant de changer le paramètre de la connaissance du labyrinthe et de le passer en connaissance complète.
+     * Methode {@code knowledgeComplete()} permettant de changer le paramètre de la connaissance du labyrinthe et de le passer en connaissance complète.
      */
     public void knowledgeComplete(){
         Parameters.labyrinthKnowledge = AllParameters.COMPLETE_KNOWLEDGE;
     }
 
     /**
-     * Methode {@code knowledgePartial} permettant de changer le paramètre de la connaissance du labyrinthe et de le passer en connaissance partielle.
+     * Methode {@code knowledgePartial()} permettant de changer le paramètre de la connaissance du labyrinthe et de le passer en connaissance partielle.
      */
     public void knowledgePartial(){
         Parameters.labyrinthKnowledge = AllParameters.PARTIAL_KNOWLEDGE;
     }
 
-    
-    public int getValue(){
-        return this.value;
+    /**
+     * Méthode {@code getValue()} permettant de récupérer la valeur qui determine la zone de connaissance autour de la position du monstre lorsque 
+     * le paramètre de connaissance partiel est choisit.
+     * 
+     * @return Cette méthode retourne la largeur du labyrinthe.
+     */
+    public int getPartialKnowledgeValue(){
+        return this.partialKnowledgeValue;
     }
     
     /**
-     * Méthode {@code incrementValue} permettant d'incrémenter la hauteur de 1.
+     * Méthode {@code incrementValue()} permettant d'incrémenter le rayon de la zone de connaissance de 1.
      */
     public void incrementValue(){
-        setValue(value+1);
+        setPartialKnowledgeValue(partialKnowledgeValue+1);
     }
     
     /**
-     * Méthode {@code decrementValue} permettant de décrémenter la hauteur de 1.
+     * Méthode {@code decrementValue()} permettant de décrémenter le rayon de la zone de connaissance de 1.
      */
     public void decrementValue(){
-        setValue(value-1);
+        setPartialKnowledgeValue(partialKnowledgeValue-1);
     }
     
     /**
-     * Méthode {@code setValue} permettant de fixer le paramètre value.
+     * Méthode {@code setValue(int)} permettant de fixer le paramètre value.
+     * 
+     * @param value Ce paramètre représente la nouvelle valeur pour la connaissance partielle.
      */
-    public void setValue(int value){
-        this.value=value;
-    }
-
-    public void setMonsterAi(){
-        modeJeu = AllParameters.MONSTER_AI_ONLY;
-    }
-
-    public void setHunterAi(){
-        modeJeu = AllParameters.HUNTER_AI_ONLY;
-    }
-    public void setBothAi(){
-        modeJeu = AllParameters.BOTH_AI;
-    }
-
-    public void setBothPlayer(){
-        modeJeu = AllParameters.BOTH_PLAYER;
+    public void setPartialKnowledgeValue(int value){
+        this.partialKnowledgeValue=value;
     }
 
     /**
-     * Méthode {@code updateParameters} permettant de modifier la taille du labyrinthe avec les nouvelles valeurs.
+     * Méthode {@code labyRandom()} qui permet de définir le choix du labyrinthe sur aléatoire.
+     */
+    public void labyRandom(){
+        Parameters.choiseLaby = AllParameters.LABYRAND;
+    }
+
+    /**
+     * Méthode {@code setLabyPredef(String)} qui permet de définir le choix du labyrinthe avec comme paramètre un des 3 labyrinthe prédéfinit.
+     * 
+     * @param labyPredef Ce paramètre représente l'un des 3 labyrinthes prédéfinit.
+     */
+    public void setLabyPredef(String labyPredef){
+        Parameters.choiseLaby = AllParameters.LABYPREDEF;
+        Parameters.pathForLabyPredef = labyPredef;
+    }
+
+    /**
+     * Méthode {@code setPlayModeMonster(int)} qui permet de définir le mode de jeu pour le Monstre.
+     * 
+     * @param choice Ce paramètre représente le choix du mode de jeu : 0 pour {@code PLAYER}, 1 pour {@code IA}
+     */
+    public void setPlayModeMonster(int choice){
+        this.monster = choice;
+        this.setBothPlayer();
+    }
+
+    /**
+     * Méthode {@code setPlayModeHunter(int)} qui permet de définir le mode de jeu pour le Chasseur.
+     * 
+     * @param choice Ce paramètre représente le choix du mode de jeu : 0 pour {@code PLAYER}, 1 pour {@code IA}
+     */
+    public void setPlayModeHunter(int choice){
+        this.hunter = choice;
+        this.setBothPlayer();
+    }
+
+    /**
+     * Méthode {@code setBothPlayer()} permet de définir le paramètre de mode de jeu.
+     */
+    private void setBothPlayer(){
+        if(this.monster == 0 && this.hunter == 0) gameMode = AllParameters.BOTH_PLAYER;
+        else if(this.monster == 1 && this.hunter == 1) gameMode = AllParameters.BOTH_AI;
+        else if(this.monster == 1 && this.hunter == 0) gameMode = AllParameters.MONSTER_AI_ONLY;
+        else gameMode = AllParameters.HUNTER_AI_ONLY;
+    }
+
+    /**
+     * Méthode {@code getProba()} qui permet d'obtenir la probabilité d'apparition des mûrs.
+     * 
+     * @return Cette méthode retourne la probabilité d'apparition des mûrs.
+     */
+    public double getProba(){
+        return this.proba;
+    }
+
+    /**
+     * Méthode {@code setProba(double)} permettant de définir la probabilité d'apparition des mûrs.
+     * 
+     * @param proba Ce paramètre représente la probabilité d'apparition des mûrs.
+     */
+    public void setProba(double proba){
+        this.proba = proba;
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet d'incrémenter la probabilité d'apparition des mûrs de 0.01.
+     */
+    public void incrementProbaLittle(){
+        this.proba += 0.01;
+        this.round();
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet de décrémenter la probabilité d'apparition des mûrs de 0.01.
+     */
+    public void decrementProbaLittle(){
+        this.proba -= 0.01;
+        this.round();
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet d'incrémenter la probabilité d'apparition des mûrs de 0.05.
+     */
+    public void incrementProbaMid(){
+        this.proba += 0.05;
+        this.round();
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet de décrémenter la probabilité d'apparition des mûrs de 0.05.
+     */
+    public void decrementProbaMid(){
+        this.proba -= 0.05;
+        this.round();
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet d'incrémenter la probabilité d'apparition des mûrs de 0.1.
+     */
+    public void incrementProbaBig(){
+        this.proba += 0.1;
+        this.round();
+    }
+
+    /**
+     * Méthode {@code incrementProbaLittle()} qui permet de décrémenter la probabilité d'apparition des mûrs de 0.1.
+     */
+    public void decrementProbaBig(){
+        this.proba -= 0.1;
+        this.round();
+    }
+
+    /**
+     * Méthode privée {@code round()} permettant d'arrondir la probabilité.
+     */
+    private void round(){
+        this.proba = Math.round((this.proba*100.0))/100.0;
+    }
+
+    /**
+     * Méthode {@code setZoneSpawn()} permettant de définir la zone autour de la sortie dans laquelle le Monstre ne peut pas apparaitre 
+     * La zone est calculée à partir d'un rayon (calculé à partir de la taille du labyrinthe).
+     */
+    public static void setZoneForSpanwn(){
+        int min = Parameters.lengthLabyrinth[0] < Parameters.lengthLabyrinth[1] ? Parameters.lengthLabyrinth[0] : Parameters.lengthLabyrinth[1];
+
+        Parameters.zoneForSpawnAroundExit = min / 2;
+    }
+
+    /**
+     * Méthode {@code updateParameters()} permettant de mettre à jour les paramètres..
      */
     public void updateParameters(){
         Parameters.lengthLabyrinth = new int[]{this.width, this.height};
-        Parameters.mouvementPartialKnowledgeValue=this.value;
+        Parameters.mouvementPartialKnowledgeValue=this.partialKnowledgeValue;
+        Parameters.probabilityForWall = proba;
     }
 }

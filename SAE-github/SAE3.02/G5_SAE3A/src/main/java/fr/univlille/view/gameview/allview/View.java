@@ -24,6 +24,10 @@ public abstract class View extends Subject {
      */
     public static final Label L = new Label("Baptiste Bertout , Arthur Keller , Pierre Planchon , Gaspard Souliez , Mathis Decoster");
 
+    protected static final double WIDTH = MainView.BOUNDS.getWidth();
+
+    protected static final double HEIGHT = MainView.BOUNDS.getHeight()-20;
+
     /**
      * Méthode abstraite {@code getMyScene} qui retourne la {@code Scene} courante qui permettra d'affiché les fenêtres.<br><br>
      * 

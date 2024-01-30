@@ -10,6 +10,8 @@ import main.java.fr.univlille.model.parameters.Parameters;
 import main.java.fr.univlille.utils.Observer;
 import main.java.fr.univlille.utils.Subject;
 import main.java.fr.univlille.view.gameview.AllViewEnum;
+import main.java.fr.univlille.view.gameview.allview.allwinview.HunterWinView;
+import main.java.fr.univlille.view.gameview.allview.allwinview.MonsterWinView;
 
 /**
  * 
@@ -35,7 +37,17 @@ public class MainView extends Stage implements Observer{
     /**
      * Attribut {@code bounds} permettant d'obtenir les limites visuelles de l'écran. Il nous sert plus précisement à savoir la taille.<br>
      */
-    public static final Rectangle2D bounds = screen.getVisualBounds();
+    public static final Rectangle2D BOUNDS = screen.getVisualBounds();
+
+    /**
+     * Attribut {@code SCREENWIDTH} permettant d'obtenir la hauteur de l'écran.
+     */
+    public static final double SCREENWIDTH = BOUNDS.getWidth();
+
+    /**
+     * Attribut {@code SCREENHEIGHT} permettant d'obtenir la largeur de l'écran.
+     */
+    public static final double SCREENHEIGHT = BOUNDS.getHeight();
 
     private Map<AllViewEnum,View> map;
 
@@ -47,6 +59,7 @@ public class MainView extends Stage implements Observer{
         Parameters para = new Parameters();
         this.map = new HashMap<>(); 
         this.map.put(AllViewEnum.PLAYVIEW, new PlayView());
+        this.map.put(AllViewEnum.CREATEVIEW, new CreateView());
         this.map.put(AllViewEnum.MENUVIEW, new MenuView((PlayView)this.map.get(AllViewEnum.PLAYVIEW)));
         this.map.put(AllViewEnum.PARAMETERSVIEW, new ParametersView(para));
         this.map.put(AllViewEnum.RULESVIEW, new RulesView());

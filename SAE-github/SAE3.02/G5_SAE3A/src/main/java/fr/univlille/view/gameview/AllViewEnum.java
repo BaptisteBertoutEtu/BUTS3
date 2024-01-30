@@ -49,5 +49,25 @@ public enum AllViewEnum {
     /**
      * Enumération {@code MONSTERWIN} définissant le nom de l'énumération lié à la vue gagnante du Monstre.
      */
-    MONSTERWIN
+    MONSTERWIN,
+
+    /**
+     * Enumération {@code NAMEVIEW} définissant le nom de l'énumération lié à la vue du choix des noms.
+     */
+    NAMEVIEW,
+
+    /**
+     * Enumération {@code CREATEVIEW} définissant le nom de l'énumération lié à la vue de création du labyrinthe.
+     */
+    CREATEVIEW,
+
+    /**
+     * Enumération {@code CHANGEPLAYERHUNTER} définissant le nom de l'énumération lié à la vue bloquante du chasseur.
+     */
+    CHANGEPLAYERHUNTER,
+
+    /**
+     * Enumération {@code CHANGEPLAYERMONSTER} définissant le nom de l'énumération lié à la vue bloquante du monstre.
+     */
+    CHANGEPLAYERMONSTER
 }

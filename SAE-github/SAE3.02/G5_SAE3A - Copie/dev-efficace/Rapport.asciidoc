@@ -1,0 +1,42 @@
+= Rapport développement efficace
+Baptiste Bertout <author>; Pierre Planchon <author>; Arthur Keller <author>; Gaspard Souliez <author>; Mathis Decoster <author>;
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== 1. Description
+=== 1.1 Génération de labyrinthe
+==== 1.1.1 Algorithme utilisé
+==== 1.1.2 Structures de données
+==== 1.1.3 Efficacité
+
+=== 1.2 IA
+==== 1.2.1 Monster
+L'intelligence artificielle (IA) du monstre repose sur un algorithme de parcours en largeur pour déterminer le chemin optimal vers la sortie du labyrinthe. L'implémentation de cet algorithme est réalisée dans la classe `IAMonstre`.
+
+===== 1.2.1.1 Algorithme de parcours en largeur
+L'algorithme de parcours en largeur est utilisé pour trouver le plus court chemin entre la position actuelle du monstre et la sortie du labyrinthe. La méthode `findShortestPath` prend en compte la structure de données d'une file (Queue) pour explorer les différentes possibilités de déplacement.
+```java
+private List<ICoordinate> findShortestPath(ICoordinate start, ICoordinate goal) {
+    // ... [Détailler le fonctionnement de l'algorithme]
+}
+```
+
+===== 1.2.1.2 Choix du prochain mouvement
+La méthode `chooseNextMove` utilise le chemin trouvé par l'algorithme de parcours en largeur pour déterminer le prochain mouvement du monstre. Si un chemin est trouvé, le monstre se déplace vers la deuxième coordonnée du chemin, fournissant ainsi une stratégie intelligente. En l'absence de chemin, le monstre effectue un mouvement aléatoire parmi les possibilités.
+```java
+private ICoordinate chooseNextMove() {
+    // ... [Expliquer la logique du choix du prochain mouvement]
+}
+```
+
+===== 1.2.1.3 Structures de données utilisées
+L'implémentation de l'IA du monstre utilise une file (*Queue*) et un ensemble (*Set*) pour suivre les mouvements déjà explorés et optimiser la recherche du chemin le plus court.
+```java
+Queue<List<ICoordinate>> queue = new LinkedList<>();
+Set<ICoordinate> visited = new HashSet<>();
+```
+
+==== 1.2.2 Hunter

@@ -1,9 +1,11 @@
 package main.java.fr.univlille.model.entity;
 
-
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import fr.univlille.iutinfo.cam.player.IStrategy;
 import fr.univlille.iutinfo.cam.player.monster.IMonsterStrategy;
 import fr.univlille.iutinfo.cam.player.perception.ICellEvent;
 import fr.univlille.iutinfo.cam.player.perception.ICoordinate;
@@ -15,17 +17,14 @@ import main.java.fr.univlille.model.Game;
 import main.java.fr.univlille.model.board.Board;
 import main.java.fr.univlille.model.parameters.AllParameters;
 import main.java.fr.univlille.model.parameters.Parameters;
-import main.java.fr.univlille.utils.Observer;
 import main.java.fr.univlille.utils.Subject;
 import main.java.fr.univlille.view.gameview.AllViewEnum;
 
 /**
  * 
  * Classe {@code Monster} peremttant l'initialisation du monstre.<br>
- * Le Monstre ne peut que se déplacer sur une case du plateau adjacente et qui est libre.<br>
- * Cette classe implémente l'interface {@code IMonsterStrategy} pour avoir accès à ses méthodes.<br>
- * Elle implémente également l'interface {@link Observer} et hérite de la classe abstraite {@link Subject}, 
- * qui lui permettent de notifier l'objet {@link Hunter} lorsque celui-ci lui demande les données de la case sur lequel il vient de tirer.
+ * Cette classe hérité de la classe {@link Entity} ce qui permet d'avoir accès à ses méthode, et ce qui permet 
+ * d'avoir accès aux classes et interfaces par l'accès à la classe {@link Entity}.
  * 
  * @author Baptiste Bertout
  * @author Pierre Planchon
@@ -33,22 +32,52 @@ import main.java.fr.univlille.view.gameview.AllViewEnum;
  * @author Gaspard Souliez
  * @author Mathis Decoster
  * 
- * @see Subject
- * @see IMonsterStrategy
- * @see Observer
+ * @see Entity
  */
-public class Monster extends Subject implements IMonsterStrategy, Observer{
+public class Monster extends Entity{
+
+    /*
+     * Les coordonnées actuelles du monstre
+     */
     private static Coordinate currentCoord;
+
+    /*
+     * les précédents coordonées du monstre à currentCoord
+     */
     private static Coordinate lastCoord;
-    private Coordinate lastShoot;
-    private static Map<Coordinate,Integer> path  = new HashMap<>();
-    private boolean[][] monsterBooleanMaze;
+
+    /*
+     * Les coordonées de la sortie du labyrinthe
+     */
+    private static ICoordinate exit;
+
+    /*
+     * les différentes manières dont monstre peut se déplacer
+     */
     private final int[][] POSSIBILITES_FOR_CROSS;
-    private Map<ICoordinate,CellEvent> history;
-    private Coordinate exit;
+
+    /*
+     * Les coordonnées du dernier tir du Hunter
+     */
+    private ICoordinate lastShoot;
+
+    /*
+     * Le labyrinthe en booléens
+     */
+    private boolean[][] monsterBooleanMaze;
+
+    /*
+     * chemin du monstre avec tour du passage pour chaque case
+     */
+    private static Map<Coordinate,CellEvent> history;
+
+    /*
+     * liste des mauvais déplacements
+     */
+    private List<ICoordinate> badShoots;
 
     /**
-     * Constructeur de la classe {@code Monster} qui permet d'instancier un Monstre.<br>
+     * Constructeur principal de la classe {@code Monster} qui permet d'instancier un Monstre.<br>
      */
     public Monster(){
         this.POSSIBILITES_FOR_CROSS =  new int[][]{
@@ -58,58 +87,85 @@ public class Monster extends Subject implements IMonsterStrategy, Observer{
             {1,1}
         };
         this.lastShoot = null;
-        this.history = new HashMap<>();
-        
+        Monster.history = new HashMap<>();
+        this.badShoots = new ArrayList<>();
+        this.setIsIA(false);
     }
 
     /**
+     * Constructeur secondaire de la classe {@code Monster} permettant d'intancier un monstre, mais jouer par une "Intelligence Artificielle".
      * 
+     * @param ia Ce paramètre représente l'IA qui joue le Monstre.
      */
-    @Override
-    public ICoordinate play() {
-        return null;
+    public Monster(IStrategy ia){
+        this();
+        this.setIA(ia);
+        this.setIsIA(true);
+    }
+
+    /**
+     * Méthode {@code play()} appelée lorsque le monstre est joué par une IA. <br>
+     * 
+     * @return Cette méthode retourne un {@code booléen} permettant de savoir si le monstre a atteint la sortie ou non.
+     */
+    public boolean play() {        
+        ICoordinate iaCoordinate = this.getIA().play();
+        try {
+            boolean temp = this.move(iaCoordinate);
+            ICellEvent monsterEvent = new CellEvent(CellInfo.MONSTER, iaCoordinate, 0);
+            this.getIA().update(monsterEvent);
+            return temp;
+        } catch (UnsupportedMove e) {
+            this.play();
+        }
+        return false;
     }
     
     /**
-     * Méthode {@code move} permettant le déplacement du monstre avec, en paramètre, les coordonnées de la case où le joueur veut se déplacer.<br>
+     * Méthode {@code move(ICoordinate)} permettant le déplacement du monstre avec, en paramètre, les coordonnées de la case où le joueur veut se déplacer.<br>
      * Cette méthode permet également de vérifier si le Monstre a gagné.<br>
-     * Cette méthode génère une exception si le mouvement n'est pas valable.
+     * Cette méthode lève une exception si le mouvement n'est pas valable.
      * 
-     * @param coord Les coordonnées de la case où le joueur veut se déplacer.
-     * @return Un booléen permettant de savoir si le déplacement à fonctionné ou non. Ici {@code false} signifie que la case 
+     * @param coord Ce paramètre représente les coordonnées de la case où le joueur veut se déplacer.
+     * 
+     * @return Cette méthode retourne un {@code booléen} permettant de savoir si le déplacement à fonctionné ou non. Ici {@code true} signifie que la case 
      * ou l'on souhaite se déplacer est la sortie, ce qui permet de déclencher la victoire du Monstre.
-     * @throws UnsupportedMove L'exception est levée lorsque le déplacement est impossible.
+     * 
+     * @throws UnsupportedMove Cette méthode lève l'{@code exception} lorsque le déplacement est impossible.
      */
-    public void move(Coordinate coord) throws UnsupportedMove{
+    public boolean move(ICoordinate coord) throws UnsupportedMove{
         if (isGoodMove(coord)) {
+            Coordinate tempCoord = new Coordinate(coord.getCol(), coord.getRow());
             Monster.lastCoord = Monster.currentCoord;
-            Monster.currentCoord = coord;
-            Monster.path.put(coord,Game.currentTurn+1);
-            if (coord.equals(this.exit)) {
+            Monster.currentCoord = tempCoord;
+            if (tempCoord.equals(Monster.exit)) {
                 notifyObservers(AllViewEnum.MONSTERWIN);
+                return true;
             }
             else{
                 CellEvent temp = new CellEvent(CellInfo.EMPTY, coord, ++Game.currentTurn);
-                history.put(temp.getCoord(),temp);
-                notifyObservers((Coordinate)temp.getCoord());
+                history.put(tempCoord,temp);
+                notifyObservers(coord);
             }
-            
         }
         else{
+            this.badShoots.add(coord);
             throw new UnsupportedMove();
         }
+        return false;
     }
 
     /**
-     * Méthode {@code isGoodMove} permettant de défnir si le déplacement du joueur est valable ou non.
+     * Méthode privée {@code isGoodMove(ICoordinate)} permettant de défnir si le déplacement du joueur est valable ou non. <br>
      * Selon les paramètres saisis par le joueur, on vérifie soit que le coup peut se jouer pour un déplacement de 4 case autour de la position actuelle
      * ( c'est à dire, soit à gauche, soit à droite, soit en haut, soit en bas ), soit que le coup peut se jouer pour un 
      * déplacement de 8 cases autour de la position actuelle.
      * 
-     * @param coord Les coordonnées de la case que le joueur veut atteindre.
-     * @return {@code true} si le coup est bon, {@code false} sinon.
+     * @param coord Ce paramètre représente les coordonnées de la case que le joueur veut atteindre.
+     * 
+     * @return Cette méthode retourne un {@code booléen} selon si le mouvement demandé estfaisable ou non.
      */
-    private boolean isGoodMove(Coordinate coord){
+    private boolean isGoodMove(ICoordinate coord){
         if (Parameters.movement.equals(AllParameters.MOVEMENT_4)) {
             return isGoodMoveFour(coord);
         }
@@ -119,19 +175,20 @@ public class Monster extends Subject implements IMonsterStrategy, Observer{
     }
 
     /**
-     * Méthode {@code isGoodMoveFour} permettant de défnir si le déplacement du joueur est valable ou non pour un déplacement de 4 case autour de la position actuelle
-     * ( c'est à dire, soit à gauche, soit à droite, soit en haut, soit en bas ).
+     * Méthode privée {@code isGoodMoveFour(ICoordinate)} permettant de défnir si le déplacement du joueur est valable ou non pour un déplacement de 4 case autour de la position actuelle
+     * ( c'est à dire, soit à gauche, soit à droite, soit en haut, soit en bas ). <br>
      * Cette méthode vérifie également si la case souhaitée n'est pas un mur.
      * 
-     * @param coord Les coordonnées de la case que le joueur veut atteindre.
-     * @return {@code true} si le coup est bon, {@code false} sinon.
+     * @param coord Ce paramètre représente les coordonnées de la case que le joueur veut atteindre.
+     * 
+     * @return Cette méthode retourne un {@code booléen} selon si le mouvement demandé estfaisable ou non.
      */
-    private boolean isGoodMoveFour(Coordinate coord){
-        int col = Monster.currentCoord.compareCol(coord.getCol());
-        int row = Monster.currentCoord.compareRow(coord.getRow());
+    private boolean isGoodMoveFour(ICoordinate coord){
+        int col = coord.getCol() - Monster.currentCoord.getCol();
+        int row = coord.getRow() - Monster.currentCoord.getRow();
         boolean goodCol = (col<=1 && col>=-1);
         boolean goodRow = (row<=1 && row>=-1);
-        boolean isntWall = this.monsterBooleanMaze[coord.getCol()][coord.getRow()];
+        boolean isntWall = this.monsterBooleanMaze[coord.getRow()][coord.getCol()];
         if(Monster.currentCoord.getCol()!=coord.getCol() && Monster.currentCoord.getRow()!=coord.getRow()){
             return false;
         }
@@ -139,149 +196,172 @@ public class Monster extends Subject implements IMonsterStrategy, Observer{
     }
     
     /**
-     * Méthode {@code isGoodMoveEight} permettant de défnir si le déplacement du joueur est valable ou non pour un 
+     * Méthode privée {@code isGoodMoveEight(ICoordinate)} permettant de défnir si le déplacement du joueur est valable ou non pour un 
      * déplacement de 8 cases autour de la position actuelle.
      * Cette méthode vérifie également si la case souhaitée n'est pas un mur.
      * 
-     * @param coord Les coordonnées de la case que le joueur veut atteindre.
-     * @return {@code true} si le coup est bon, {@code false} sinon.
+     * @param coord Ce paramètre représente les coordonnées de la case que le joueur veut atteindre.
+     * 
+     * @return Cette méthode retourne un {@code booléen} selon si le mouvement demandé estfaisable ou non.
      */
-    private boolean isGoodMoveEight(Coordinate coord){
-        int col = Monster.currentCoord.compareCol(coord.getCol());
-        int row = Monster.currentCoord.compareRow(coord.getRow());
+    private boolean isGoodMoveEight(ICoordinate coord){
+        int col = coord.getCol() - Monster.currentCoord.getCol();
+        int row = coord.getRow() - Monster.currentCoord.getRow();
         boolean goodCol = (col<=1 && col>=-1);
         boolean goodRow = (row<=1 && row>=-1);
-        boolean isntWall = !this.monsterBooleanMaze[coord.getCol()][coord.getRow()] == false;
+        boolean isntWall = this.monsterBooleanMaze[coord.getRow()][coord.getCol()];
         return goodCol && goodRow && isntWall && dontCrossWall(col, row,coord);
         
     }
 
     /**
-     * Méthode {@code dontCrossWall} permettant de vérifier que le Monstre ne puisse pas se déplacer à travers deux murs posés en diagonale comme dans l'exemple ci-dessous : <br>
+     * Méthode privée {@code dontCrossWall(int, int, ICoordinate)} permettant de vérifier que le Monstre ne puisse pas se déplacer à travers deux murs posés en diagonale comme dans l'exemple ci-dessous : <br>
      *      M | W <br>
      *      ----- <br>
      *      W | * <br>
      * Avec M étant le monstre, W un mur et * l'endroit ou il veut aller.
      * 
-     * @param col La comparaison entre la colonne courante du Monstre et la colonne de la nouvelle coordonnée.
-     * @param row La comparaison entre la ligne courante du Monstre et la ligne de la nouvelle coordonnée.
-     * @param coord La coordonnée où le Monstre veut se rendre.
-     * @return {@code true} si il ne traverse pas de mur, {@code false} sinon.
+     * Le paramètre de déplacement {@code MOVEMENT_8_WITH_PASSING_WALL} de l'énumération {@link AllParameters} définit ici le fait de pouvoir
+     * traverser les mûrs posées en diagonales. <br>
+     * 
+     * Le paramètre de déplacement {@code MOVEMENT_8_WITHOUT_PASSING_WALL} de l'énumération {@link AllParameters} définit, quant à lui,
+     * l'impossibilité de traverser les mûrs posées en diagonales. <br>
+     * 
+     * @param col Ce paramètre représente la comparaison entre la colonne courante du Monstre et la colonne de la nouvelle coordonnée.
+     * @param row Ce paramètre représente la comparaison entre la ligne courante du Monstre et la ligne de la nouvelle coordonnée.
+     * @param coord Ce paramètre représente la coordonnée où le Monstre veut se rendre.
+     * 
+     * @return Cette méthode retourne un {@code booléen} selon si le mouvement souhaité traverse un mûr ou non. (Diffère selon le paramètre de déplacement définit)
      */
-    private boolean dontCrossWall(int col, int row,Coordinate coord){
+    private boolean dontCrossWall(int col, int row, ICoordinate coord){
+        if(Parameters.movement.equals(AllParameters.MOVEMENT_8_WITH_PASSING_WALL)) return true;
         for (int[] cross : this.POSSIBILITES_FOR_CROSS) {
             if(cross[0]==col && cross[1]==row){
-                return (this.monsterBooleanMaze[coord.getCol()][coord.getRow()-cross[1]] || this.monsterBooleanMaze[coord.getCol()-cross[0]][coord.getRow()]);
+                return (this.monsterBooleanMaze[coord.getRow()-cross[1]][coord.getCol()] || this.monsterBooleanMaze[coord.getRow()][coord.getCol()-cross[0]]);
             }
         }
         return true;
     }
 
     /**
-     * Méthode {@code initialize} permettant d'initialiser un labyrinthe à partir d'un tableau de booléen.
+     * Méthode {@code initialize(boolean[][])} permettant d'initialiser un labyrinthe à partir d'un tableau de booléen.
      * 
-     * @param maze Le tableau de booléen peremttant d'initialiser un labyrinthe.
+     * @param maze Ce paramètre représente le tableau de booléen représentant le labyrinthe.
      */
-    @Override
     public void initialize(boolean[][] maze) {
         this.monsterBooleanMaze = maze;
-        Board.randomMonsterPosition(maze);
-        Board.randomExitPosition(maze);
-        this.exit = new Coordinate(Board.getxExit(), Board.getyExit());
+        if (this.isIA()) {
+            ((IMonsterStrategy)this.getIA()).initialize(maze);
+            this.getIA().update(new CellEvent(CellInfo.MONSTER, getCurrentCoord(), 0));
+            this.getIA().update(new CellEvent(CellInfo.EXIT, exit, 0));
+        }
+        
     }
 
     /**
-     * Méthode {@code update} non utilisé ici.
-     * 
-     * @throws UnsupportedOperationException L'exception est levé si la méthode est appelée.
+     * Méthode {@code update(Subject)} non utilisé ici.
      */
     @Override
     public void update(Subject subj) {
-        throw new UnsupportedOperationException();
+        // méthode non utilisée ici
     }
 
     /**
-     * 
-     */
-    @Override
-    public void update(ICellEvent arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Méthode {@code lastShoot} permettant de définir la dernière coordonnée des tirs éffectués par le Chasseur, et de notifier le Chasseur
+     * Méthode {@code lastShoot(Subject, Object)} permettant de définir la dernière coordonnée des tirs éffectués par le Chasseur, et de notifier le Chasseur
      * avec les informations de cette case.<br>
      * De plus, si la case est la sortie, le Chasseur n'en est pas informé. 
      * 
-     * @param data Les coordonées du dernier tir du Chasseur.
+     * @param data Ce paramètre représente les coordonées du dernier tir du Chasseur.
      */
     @Override
     public void update(Subject subj, Object data) {
-        if(data instanceof Coordinate && subj instanceof Hunter && !((Coordinate) data).equals(this.lastShoot)) {
-            Coordinate temp = (Coordinate) data;
+        if(data instanceof ICoordinate && subj instanceof Hunter) {
+            Coordinate temp = new Coordinate(((ICoordinate)data).getCol(), ((ICoordinate)data).getRow());
             this.lastShoot = temp;
             notifyObservers(new CellEvent(CellInfo.HUNTER, temp, -1));
 
-            
             if(temp.equals(Monster.currentCoord)) notifyObservers(new CellEvent(CellInfo.MONSTER, temp, Game.currentTurn));
-            else if(this.history.containsKey(temp)) {notifyObservers(this.history.get(temp)); System.out.println("entrer");}
-            else if(this.monsterBooleanMaze[temp.getCol()][temp.getRow()]) notifyObservers(new CellEvent(CellInfo.EMPTY, temp, -1));
+            else if(Monster.history.containsKey(temp)) notifyObservers(Monster.history.get(temp));
+            else if(this.monsterBooleanMaze[temp.getRow()][temp.getCol()]) notifyObservers(new CellEvent(CellInfo.EMPTY, temp, -1));
             else notifyObservers(new CellEvent(CellInfo.WALL, temp, -1));
         }
     }
 
     /**
-     * Méthode {@code getCurrentCoord} permettant de retourner les coodonnées courantes du Monstre.
+     * Méthode {@code getCurrentCoord()} permettant de retourner les coodonnées courantes du Monstre.
      * 
-     * @return Les coodonnées courantes du Monstre.
+     * @return Cette méthode retourne les coodonnées courantes du Monstre.
      */
-    public Coordinate getCurrentCoord(){
+    public ICoordinate getCurrentCoord(){
         return Monster.currentCoord;
     }
 
     /**
-     * Méthode {@code getLastCoord} permettant de retourner les coodonnées précédentes du Monstre.
+     * Méthode {@code getLastCoord()} permettant de retourner les coodonnées précédentes du Monstre.
      * 
-     * @return Les coodonnées précédents du Monstre.
+     * @return Cette méthode retourne les coodonnées précédents du Monstre.
      */
-    public Coordinate getLastCoord(){
+    public ICoordinate getLastCoord(){
         return Monster.lastCoord;
     }
 
     /**
-     * Méthode {@code setCurrentCoord} permettant de de définir les coordonnées principales du Monstre, de défnir les coordonnées précédentes du Monste
+     * Méthode {@code setCurrentCoord(ICoordinate)} permettant de de définir les coordonnées principales du Monstre, de défnir les coordonnées précédentes du Monste
      * ( qui ici sont les mêmes que ls coordonnées courantes ) et d'ajouter au chemin parcouru par le Monstre, la dernière case parcourue ainsi que le tour correspondant.<br>
      * Cette méthode n'est appelée qu'une seule fois. Dans la classe {@link Board};
      * 
-     * @param c Les coordonnées permettant de définir l'ensemble des opérations définit dans l'explication.
+     * @param c Ce paramètre représente les coordonnées permettant de définir l'ensemble des opérations définit dans l'explication.
      */
-    public static void setCurrentCoord(Coordinate c){
-        Monster.currentCoord = c;
-        Monster.lastCoord = c;
-        Monster.path.put(c,Game.currentTurn);
+    public static void setCurrentCoord(ICoordinate c){
+        Monster.currentCoord = new Coordinate(c.getCol(), c.getRow());
+        Monster.lastCoord = Monster.currentCoord;
+        Monster.history.clear();
+        Monster.history.put(Monster.currentCoord,new CellEvent(CellInfo.EMPTY, c, Game.currentTurn));
     }
-
-
+    
     /**
-     * Méthode {@code getLastShoot} permettant de retourner les coordonées du dernier tir du chasseur.
+     * Méthode {@code getLastShoot()} permettant de retourner les coordonées du dernier tir du chasseur.
      * 
-     * @return Les coordonées du dernier tir du Chasseur.
+     * @return Cette méthode retourne les coordonées du dernier tir du Chasseur.
      */
-    public Coordinate getLastShoot(){
+    public ICoordinate getLastShoot(){
         return this.lastShoot;
     }
 
     /**
-     * Méthode {@code getPath} permettant d'accéder au chemin parcouru par le Monstre.
-     * @return La {@link Map} contenant le chemin parcouru par le Monstre.
+     * Méthode {@code setExit(ICoordinate)} permettant de définir les coordonées de la sortie pour le Monstre.
+     * 
+     * @param c Ce paramètre représente les coordonnées de la sortie.
      */
-    public Map<Coordinate,Integer> getPath(){
-        return Monster.path;
+    public static void setExit(ICoordinate c){
+        Monster.exit = c;
     }
 
-    public Coordinate getExit(){return this.exit;}
+    /**
+     * Méthode {@code getExit()} permettant d'obtenir les coordonées de la sortie.
+     * 
+     * @return Cette méthode permet d'obtenir les coordonées de la sortie.
+     */
+    public ICoordinate getExit(){
+        return Monster.exit;
+    }
 
+    /**
+     * Méthode {@code getMaze()} permet d'obtenir les tableau à doubles dimensions de booléen représentant le labyrinthe.
+     * 
+     * @return Cette méthode retourne le tableau de booléen à double dimensions.s
+     */
     public boolean[][] getMaze(){
         return this.monsterBooleanMaze;
     }
+
+    /**
+     * Méthode {@code getBadShoots()} permettant d'obtenir la {@code liste} des mauvais déplacements tentés au tour précédent par le Monstre.
+     * 
+     * @return Cette méthode retourne la {@code liste} des mauvais déplacements tentés au tour précédent par le Monstre.
+     */
+    public List<ICoordinate> getBadShoots(){
+        return this.badShoots;
+    }
+
 }
