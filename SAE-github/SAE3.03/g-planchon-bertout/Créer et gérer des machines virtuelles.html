@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="Bertout Baptiste, Planchon Pierre">
-<title>Sujet n°1</title>
+<title>Créer et gérer des machines virtuelles</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,7 +440,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Sujet n°1</h1>
+<h1>Créer et gérer des machines virtuelles</h1>
 <div class="details">
 <span id="author" class="author">Bertout Baptiste</span><br>
 <span id="email" class="email">author</span><br>
@@ -450,177 +450,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table des matières</div>
 <ul class="sectlevel1">
-<li><a href="#_plage_dadresse_ip">Plage d&#8217;adresse IP :</a></li>
-<li><a href="#_connexion_à_distance">Connexion à distance</a>
-<ul class="sectlevel2">
-<li><a href="#_première_connexion_à_la_machine_de_virtualisation">Première connexion à la machine de virtualisation</a></li>
-<li><a href="#_faciliter_la_connexion">Faciliter la connexion</a></li>
-</ul>
-</li>
-<li><a href="#_créer_et_gérer_des_machines_virtuelles">Créer et gérer des machines virtuelles</a></li>
-<li><a href="#_configurer_et_mettre_à_jour_la_machine_virtuelle">Configurer et mettre à jour la machine virtuelle</a></li>
+<li><a href="#_les_commandes_principales">Les commandes principales</a></li>
+<li><a href="#_quelques_informations_sur_le_réseau_et_la_vm">Quelques informations sur le réseau et la VM :</a></li>
+<li><a href="#_utilisation_de_la_vm_en_console_virtuelle">Utilisation de la VM en console virtuelle :</a></li>
+<li><a href="#_utilisation_de_la_vm_en_ssh">Utilisation de la VM en SSH :</a></li>
+<li><a href="#_changement_de_la_configuration_réseau">Changement de la configuration réseau :</a></li>
+<li><a href="#_mise_à_jour_des_machines_virtuelles">Mise à jour des machines virtuelles</a></li>
+<li><a href="#_installations_des_outils_utiles_aux_machines_virtuelles">Installations des outils utiles aux machines virtuelles</a></li>
+<li><a href="#_changement_de_nom_de_machine">Changement de nom de machine</a></li>
+<li><a href="#_configuration_de_la_commande_sudo">Configuration de la commande sudo</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_plage_dadresse_ip">Plage d&#8217;adresse IP :</h2>
-<div class="sectionbody">
-<div class="sidebarblock">
-<div class="content">
-<div class="paragraph">
-<p>Baptiste : 10.42.116.1-254<br>
-Pierre : 10.42.171.1-254</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_connexion_à_distance">Connexion à distance</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_première_connexion_à_la_machine_de_virtualisation">Première connexion à la machine de virtualisation</h3>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Machine de virtualisation :</div>
-<div class="paragraph">
-<p>La machine de virtualisation est la suivante :<br>
-<strong>dattier.iutinfo.fr</strong><br></p>
-</div>
-<div class="paragraph">
-<p>Afin de vous connecter sur la machine de virtualisation utilisez la commande suivante :<br></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">    login@phys$ ssh dattier.iutinfo.fr</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Une fois la commande lancée, si vous ne vous étiez jamais connecté en SSH sur la machine indiquée, vous aurez un affichage similaire à celui-ci, ne validez rien tant que vous n’aurez pas effectué les vérifications indiquées après:<br></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>    The authenticity of host 'dattier.iutinfo.fr (172.18.48.20)' can't be established.
-    ED25519 key fingerprint is SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg. +
-    This key is not known by any other names +
-    Are you sure you want to continue connecting (yes/no/[fingerprint])?</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Ce message vous indique que votre client SSH ne peut vérifier l’identité du serveur SSH. Il vous demande si vous souhaitez faire confiance à ce serveur.<br></p>
-</div>
-<div class="paragraph">
-<p>Pour vérifier si le serveur SSH est bien celui auquel vous pensez vous connecter, il faut vérifier l’empreinte de sa clé.<br></p>
-</div>
-<div class="paragraph">
-<p>Les empreintes des clés du serveur de virtualisation sont les suivantes (une clé différente par algorithme supporté par le serveur):<br></p>
-</div>
-<div class="paragraph">
-<p>Utilisez cette liste pour vérifier l’empreinte de la clé et uniquement si celle-ci correspond, répondez yes à la question de votre client SSH. Votre client SSH ajoutera alors le serveur dans le fichier <code>$HOME/.ssh/known_hosts</code> pour indiquer que vous lui faites
-confiance.</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top"></th>
-<th class="tableblock halign-left valign-top">Fingerprint</th>
-<th class="tableblock halign-left valign-top">Machine</th>
-<th class="tableblock halign-left valign-top">Algo</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3072</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SHA256:mPCb5nJD8F6YOg/aDCRjqF/ZW3Ei9iLpzXw5UDCIH8g</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dattier.iut-infobio.priv.univ-lille1.fr</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">(RSA)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">256</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SHA256:+XNYpzmoYKDnwaB1xqCA2Yu7mBZEK5zvtfXYw1zDO1Y</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dattier.iut-infobio.priv.univ-lille1.fr</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">(ECDSA)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">256</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">dattier.iut-infobio.priv.univ-lille1.fr</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">(ED25519)</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>Après avoir répondu yes, saisissez votre mot de passe quand il vous est demandé. Vous obtenez alors un shell qui vous permet d’exécuter des commandes sur la machine de virtualisation.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_faciliter_la_connexion">Faciliter la connexion</h3>
-<div class="paragraph">
-<p>Pour mettre en place ce que nous venons de décrire, nous devons réaliser ces étapes:</p>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Création d&#8217;une paire de clé :</div>
-<div class="paragraph">
-<p>Dans la machine physique :<br></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">  login@phys$ ssh-keygen</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Suite à cette commande, on vous demandera deux choses :<br></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>un nom de fichier : vous pouvez laisser le nom de fichier par défaut.</p>
-</li>
-<li>
-<p>une <em>passphrase</em>: c’est un mot de passe qui permet de chiffrer le fichier contenant votre clé privé. Il est très important d’utiliser un mot de passe pertinent. Ainsi, si on vous vole le fichier, le voleur ne pourra pas se servir de votre clé.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Transmission de la clé publique au serveur :</div>
-<div class="paragraph">
-<p>Quand un utilisateur tente de se connecter à un serveur SSH, celui-ci consulte le fichier $HOME/.ssh/authorized_keys à la recherche de clés publiques autorisées à se connecter pour l’utilisateur.<br></p>
-</div>
-<div class="paragraph">
-<p>Si vous regardez le contenu du fichier <code>$HOME/.ssh/id_rsa.pub</code> (cette fois côté client), vous verrez qu’il respecte le même format, à la différence qu’il ne contient qu’une seule clé (et donc qu’une seule ligne).<br></p>
-</div>
-<div class="paragraph">
-<p>Pour transmettre votre clé au serveur, il suffit donc d’ajouter le contenu du fichier id_rsa.pub (de votre machine physique) au
-fichier authorized_keys (de votre machine de virtualisation)<br></p>
-</div>
-<div class="paragraph">
-<p>Pour cela nous allons utiliser la commande suivante :<br></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">  login@phys$ ssh-copy-id -i $HOME/.ssh/id_rsa.pub dattier.iutinfo.fr</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_créer_et_gérer_des_machines_virtuelles">Créer et gérer des machines virtuelles</h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="admonitionblock warning">
 <table>
@@ -634,6 +477,11 @@ Toutes les commandes qui vont être effectué doivent être effectuées dans la 
 </tr>
 </table>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_les_commandes_principales">Les commandes principales</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
 <div class="listingblock">
@@ -672,11 +520,27 @@ Toutes les commandes qui vont être effectué doivent être effectuées dans la 
 <pre class="highlight"><code class="language-bash" data-lang="bash">  login@virtu$ vmiut info [nom de la machine]</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Ici le plus important est de créer une machine.
+</td>
+</tr>
+</table>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quelques_informations_sur_le_réseau_et_la_vm">Quelques informations sur le réseau et la VM :</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Quelques informations sur le réseau et la VM :</div>
 <div class="paragraph">
 <p>Comme vous pouvez le constater, votre machine virtuelle a obtenu une adresse IP dans le réseau 10.42.0.0/16. Il s’agit du réseau virtuel principal. Dans ce réseau, on a :<br></p>
 </div>
@@ -715,10 +579,10 @@ Toutes les commandes qui vont être effectué doivent être effectuées dans la 
 <p>Distribution: Debian GNU/Linux 12 (bookworm)</p>
 </li>
 <li>
-<p>Utilisateur standard: user, mot de passe: user</p>
+<p>Utilisateur standard: <code>user</code>, mot de passe: <code>user</code></p>
 </li>
 <li>
-<p>Administrateur: root, mot de passe: root</p>
+<p>Administrateur: <code>root</code>, mot de passe: <code>root</code></p>
 </li>
 <li>
 <p>Empreinte des clés SSH serveur:<br></p>
@@ -747,26 +611,66 @@ Toutes les commandes qui vont être effectué doivent être effectuées dans la 
 </table>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_utilisation_de_la_vm_en_console_virtuelle">Utilisation de la VM en console virtuelle :</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Utilisation de la VM en console virtuelle :</div>
 <div class="paragraph">
-<p>Utilisation de la console virtuelle : <code>vmiut console matrix</code><br>
-Cette commande renvoie une erreur, on doit donc utiliser la commande <code>ssh -X [nom de la machine de virtualisation]</code> dans la machine physique.</p>
+<p>Pour utiliser la console virtuelle, il faut lancer la commande cependant, la console virtuelle est une application graphique mais vous êtes connectés à distance sur la machine de virtualisation.<br></p>
 </div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Utilisation de la VM en SSH :</div>
 <div class="paragraph">
-<p>Utilisation de la commande : <code>ssh user@[IP]</code> en remplaçant IP par l&#8217;ip de la machine (<strong>informations de la machine</strong>)</p>
+<p>L’application graphique ne peut donc pas afficher sa fenêtre.<br></p>
+</div>
+<div class="paragraph">
+<p>Pour palier à ce problème, nous allons utiliser une fonctionnalité de SSH qui permet de rediriger une application graphique par la connexion SSH.<br></p>
+</div>
+<div class="paragraph">
+<p>Pour cela, retournez sur la machine physique et reconnectez-vous à la machine de virtualisation avec la commande suivante :<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  login@phys$ ssh -X [nom de la machine de virtualisation]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensuite, vous pouvez utiliser la console virtuelle grace à cette commande :<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  login@virtu$ vmiut start [nom de la VM]
+
+  login@virtu$ vmiut console [nom de la VM]</code></pre>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_utilisation_de_la_vm_en_ssh">Utilisation de la VM en SSH :</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Changement de la configuration réseau :</div>
+<div class="paragraph">
+<p>Pour vous connecter en ssh, il suffit d’utiliser la commande suivante (en utilisant l&#8217;adresse IP obtenu à l’aide de vmiut info ou de la sortie de ip addr show exécuté dans la console virtuelle) :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  login@virtu$ ssh user@[IP]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_changement_de_la_configuration_réseau">Changement de la configuration réseau :</h2>
+<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
 <div class="paragraph">
 <p>Utiliser la plage d&#8217;adresse qui nous est attribuée.</p>
 </div>
@@ -779,11 +683,31 @@ Cette commande renvoie une erreur, on doit donc utiliser la commande <code>ssh -
 <p>Se connecter en tant que <code>root</code>.</p>
 </li>
 <li>
-<p>Couper l&#8217;interface réseau : <code>ifdown [nom de l&#8217;interface]</code></p>
+<p>Couper l&#8217;interface réseau :<br></p>
 </li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# ifdown [nom de l'interface]</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Pour obtenir l&#8217;interface, utilisez la commande <code>ip a show</code> en prenant l&#8217;adresse intitulé "BROADCAST".
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
 <li>
-<p>Modifiez les fichiers <code>/etc/network/interfaces</code> et <code>/etc/resolv.conf</code> de façon à ce que la VM ait une adresse statique 10.42.xx.1
-et qu’elle utilise le routeur 10.42.0.1 et serveur DNS 10.42.0.1.</p>
+<p>Modifier les fichiers <code>/etc/network/interfaces</code> et <code>/etc/resolv.conf</code> de façon à ce que la VM ait une adresse statique 10.42.xx.1 et qu’elle utilise le routeur 10.42.0.1 et serveur DNS 10.42.0.1.</p>
 </li>
 </ul>
 </div>
@@ -797,82 +721,258 @@ et qu’elle utilise le routeur 10.42.0.1 et serveur DNS 10.42.0.1.</p>
       gateway 10.42.0.1</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Si une ligne de ce type existe déjà, remplacez la par celle ci-dessus.
+</td>
+</tr>
+</table>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>Redémarre l&#8217;interface réseau : <code>ifup [nom de l&#8217;interface]</code></p>
-</li>
-<li>
-<p>Vérifier l&#8217;adresse IP de la machine : <code>ip a show</code></p>
-</li>
-<li>
-<p>Vérifier l’adresse du routeur avec la commande : <code>ip route show</code></p>
-</li>
-<li>
-<p>Vérifier si la configuration DNS fonctionne correctement : <code>host www.univ-lille.fr</code></p>
-</li>
-<li>
-<p>Redémarre la machine virtuelle pour vérifier la persistance de la configuration : <code>reboot</code></p>
+<p>Redémarre l&#8217;interface réseau :</p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# ifup [nom de l'interface]</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Vérifier l&#8217;adresse IP de la machine :</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# ip a show</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Vérifier l’adresse du routeur avec la commande :</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# ip route show</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Vérifier si la configuration DNS fonctionne correctement :</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# host www.univ-lille.fr</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Redémarrer la machine virtuelle pour vérifier la persistance de la configuration :</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# reboot</code></pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_configurer_et_mettre_à_jour_la_machine_virtuelle">Configurer et mettre à jour la machine virtuelle</h2>
+<h2 id="_mise_à_jour_des_machines_virtuelles">Mise à jour des machines virtuelles</h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Questions :</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Quelle commande avez vous utilisée ? :</p>
-</li>
-<li>
-<p>Que se passe-t’il ? :</p>
-</li>
-<li>
-<p>Pourquoi ? :</p>
-</li>
-<li>
-<p>Quelle est la signification de l’option --login ? :</p>
-</li>
-<li>
-<p>Pourquoi est-il intéressant de l’utiliser ? :</p>
-</li>
-</ol>
+<div class="paragraph">
+<p>Le modèle que nous vous avons préparé date de quelques temps. Il y a probablement eu des mises à jour publiées par Debian.<br>
+Pour mettre à jour votre machine virtuelle, vous allez utiliser le système de gestion de paquet Debian: APT.<br>
+Ce système de gestion de paquets est disponible via plusieurs interfaces utilisateurs. Nous allons utiliser apt, l’interface en ligne de commande recommandée pour une utilisation interactive <a href="sujet1.html#anchors2"><sup>2</sup></a>. Nous reviendrons par la suite sur APT. Pour la mise à jour du système, utilisez la commande suivante:<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# apt update &amp;&amp; apt full-upgrade</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Laissez se terminer la mise à jour. Si cette dernière vous pose une question au sujet de GRUB, cochez la case [ ] /dev/sda à l’aide de la barre d’espacement.<br>
+Une fois la mise à jour terminée, comme il est probable qu’une nouvelle version du noyau ait été installée, redémarrez la machine virtuelle:<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# reboot</code></pre>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installations_des_outils_utiles_aux_machines_virtuelles">Installations des outils utiles aux machines virtuelles</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Mise à jour:</div>
 <div class="paragraph">
-<p>Commande : <code>apt update &amp;&amp; apt full-upgrade</code><br>
-Redémarré la machine : <code>reboot</code></p>
+<p>Installez les outils suivants : vim, less, tree, rsync et sudo.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">  root@vm# apt install vim
+
+  root@vm# apt install less
+
+  root@vm# apt install tree
+
+  root@vm# apt install rsync
+
+  root@vm# apt install sudo</code></pre>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_changement_de_nom_de_machine">Changement de nom de machine</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Installation :</div>
+<div class="listingblock">
+<div class="title">Se rendre dans la machine virtuelle</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    login@phys$ ssh vmjump</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Se connecter comme <code>root</code></div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    user@vm$ su -</code></pre>
+</div>
+</div>
 <div class="paragraph">
-<p>Commande : <code>apt install vim</code><br>
-Commande : <code>apt install less</code><br>
-Commande : <code>apt install tree</code><br>
-Commande : <code>apt install rsync</code></p>
+<p>Rentrer le mot de passe pour <code>root</code>.<br></p>
+</div>
+<div class="listingblock">
+<div class="title">Editer le fichier <code>/etc/hostname</code></div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# nano /etc/hostname</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Changer le nom par le nom souhaité.<br></p>
+</div>
+<div class="paragraph">
+<p>Sauvgarder la modification.<br></p>
+</div>
+<div class="paragraph">
+<p>Redemarrer la machine avec <code>reboot</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vous pouvez vérifier la modification après redémarrage de la machine virtuelle :<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>    Avant changement, votre prompt est:
+        user@debian:~$
+    Après changement, votre prompt est:
+        user@matrix:~$</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Vous devrez également modifier le fichier <code>/etc/hosts</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Editer le fichier <code>/etc/hosts</code></div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# nano /etc/hosts</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Trouver l&#8217;ancien nom de votre machine.<br></p>
+</div>
+<div class="paragraph">
+<p>Le changer par le nouveau.<br></p>
+</div>
+<div class="paragraph">
+<p>Sauvgarder la modification.<br></p>
+</div>
+<div class="paragraph">
+<p>Redemarrer la machine avec <code>reboot</code>.</p>
+</div>
+<div class="paragraph">
+<p>Vous pouvez vérifier la modification et si tout a fonctionné :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    ping [nom de la machine]</code></pre>
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration_de_la_commande_sudo">Configuration de la commande sudo</h2>
+<div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Trucs en plus :</div>
 <div class="paragraph">
-<p>Se rendre sur la machine physique.<br>
-Se rendre dans le fichier <code>$HOME/.ssh/config</code>.</p>
+<p>sudo permet d’exécuter des commandes en tant qu’un autre utilisateur (en particulier root). À la différence de la commande su, on a pas besoin de connaître le mot de passe de l’utilisateur destination (root).<br></p>
+</div>
+<div class="paragraph">
+<p>Le principe est que l’utilisateur <code>root</code> configure <code>sudo</code> en donnant des droits d’accès à certains utilisateurs pour certaines commandes.</p>
+</div>
+<div class="paragraph">
+<p>Tout d&#8217;abord installer <code>sudo</code>. (Rf : <a href="#_installations_des_outils_utiles_aux_machines_virtuelles">Installation de sudo</a>)</p>
+</div>
+<div class="listingblock">
+<div class="title">Définir un utilisateur comme sudo</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# usermod -aG sudo [l'utilisateur]
+
+    ou
+
+    root@vm# adduser [l'utilisateur] sudo</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Pour tester si tout a fonctionné, il faut tester une commande quelconque avec <code>sudo</code> :<br></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# su user
+    user@vm# sudo [commande]</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Si on vous demande un mot de passe la première fois et que les fois suivante on ne vous en demande pas et que la commande fonctionne, c&#8217;est que tout a fontionné.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -882,7 +982,7 @@ Se rendre dans le fichier <code>$HOME/.ssh/config</code>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-10 21:41:59 +0100
+Last updated 2024-01-19 19:07:20 +0100
 </div>
 </div>
 </body>

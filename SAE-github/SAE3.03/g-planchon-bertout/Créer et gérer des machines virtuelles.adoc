@@ -1,0 +1,272 @@
+= Créer et gérer des machines virtuelles
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+WARNING: Toutes les commandes qui vont être effectué doivent être effectuées dans la machine de virtualisation.  
+
+== Les commandes principales
+****
+.Création d'une machine virtuelle
+```bash
+  login@virtu$ vmiut creer [nom de la machine]
+```
+
+.Lister les machines virtuelles
+```bash
+  login@virtu$ vmiut lister
+```
+
+.Démarrer la machine virtuelle
+```bash
+  login@virtu$ vmiut demarrer [nom de la machine]
+```
+
+.Arrêter une machine virtuelle
+```bash
+  login@virtu$ vmiut arreter [nom de la machine]
+```
+
+.Supprimer une machine virtuelle
+```bash
+  login@virtu$ vmiut supprimer [nom de la machine]
+```
+
+.Avoir les infos sur une machine virtuelle
+```bash
+  login@virtu$ vmiut info [nom de la machine]
+```
+
+NOTE: Ici le plus important est de créer une machine.
+****
+
+== Quelques informations sur le réseau et la VM :
+****
+Comme vous pouvez le constater, votre machine virtuelle a obtenu une adresse IP dans le réseau 10.42.0.0/16. Il s’agit du réseau virtuel principal. Dans ce réseau, on a : +
+
+|===
+| Machine | Adresse
+
+| Machine de virtualisation | 10.42.0.1
+| Routeur, DNS | 10.42.0.1
+| Adresses dynamiques (attribuées automatiquement) | 10.42.1.0-10.42.99.255
+|===
+
+La machine virtuelle a été créée à partir d’un modèle. Voici les caractéristiques du modèle:  +
+
+* Distribution: Debian GNU/Linux 12 (bookworm) 
+* Utilisateur standard: `user`, mot de passe: `user` 
+* Administrateur: `root`, mot de passe: `root` 
+* Empreinte des clés SSH serveur: +
+
+|===
+| SHA256:C+oy3vfY9fGCAmwzHCUADu75cFUiOGpp7Y5/zOLJIB4 | (RSA)
+| SHA256:jq4fycPE9bXnOsphH/mkP0ue3KLQP4WEFmXDuYCpLf0 | (ECDSA)
+| SHA256:5CmKzEIqY6qbp0w+sXfHe7/jUDjsPtySwcioO5+BeVo | (ED25519)
+|===
+****
+
+== Utilisation de la VM en console virtuelle :
+****
+Pour utiliser la console virtuelle, il faut lancer la commande cependant, la console virtuelle est une application graphique mais vous êtes connectés à distance sur la machine de virtualisation. +
+
+L’application graphique ne peut donc pas afficher sa fenêtre. +
+
+Pour palier à ce problème, nous allons utiliser une fonctionnalité de SSH qui permet de rediriger une application graphique par la connexion SSH. +
+
+Pour cela, retournez sur la machine physique et reconnectez-vous à la machine de virtualisation avec la commande suivante : +
+
+```bash
+  login@phys$ ssh -X [nom de la machine de virtualisation]
+```
+
+Ensuite, vous pouvez utiliser la console virtuelle grace à cette commande : +
+
+```bash
+  login@virtu$ vmiut start [nom de la VM]
+
+  login@virtu$ vmiut console [nom de la VM]
+```
+****
+
+== Utilisation de la VM en SSH :
+****
+Pour vous connecter en ssh, il suffit d’utiliser la commande suivante (en utilisant l'adresse IP obtenu à l’aide de vmiut info ou de la sortie de ip addr show exécuté dans la console virtuelle) : 
+
+```bash
+  login@virtu$ ssh user@[IP]
+```
+****
+
+== Changement de la configuration réseau :
+****
+Utiliser la plage d'adresse qui nous est attribuée.
+
+* Activer la console virtuelle de la machine.
+* Se connecter en tant que `root`.
+* Couper l'interface réseau : +
+```bash
+  root@vm# ifdown [nom de l'interface]
+```
+
+NOTE: Pour obtenir l'interface, utilisez la commande `ip a show` en prenant l'adresse intitulé "BROADCAST".
+
+* Modifier les fichiers `/etc/network/interfaces` et `/etc/resolv.conf` de façon à ce que la VM ait une adresse statique 10.42.xx.1 et qu’elle utilise le routeur 10.42.0.1 et serveur DNS 10.42.0.1.
+
+Pour `/etc/network/interfaces` : 
+```bash
+iface enp0s3 inet static
+      address 10.42.xx.1/16
+      gateway 10.42.0.1
+```
+NOTE: Si une ligne de ce type existe déjà, remplacez la par celle ci-dessus.
+
+* Redémarre l'interface réseau : 
+```bash
+  root@vm# ifup [nom de l'interface]
+```
+
+* Vérifier l'adresse IP de la machine :
+```bash
+  root@vm# ip a show
+```
+
+* Vérifier l’adresse du routeur avec la commande :
+```bash
+  root@vm# ip route show
+```
+
+* Vérifier si la configuration DNS fonctionne correctement :
+```bash
+  root@vm# host www.univ-lille.fr
+```
+
+* Redémarrer la machine virtuelle pour vérifier la persistance de la configuration : 
+```bash
+  root@vm# reboot
+```
+****
+
+
+== Mise à jour des machines virtuelles
+****
+Le modèle que nous vous avons préparé date de quelques temps. Il y a probablement eu des mises à jour publiées par Debian. +
+Pour mettre à jour votre machine virtuelle, vous allez utiliser le système de gestion de paquet Debian: APT. +
+Ce système de gestion de paquets est disponible via plusieurs interfaces utilisateurs. Nous allons utiliser apt, l’interface en ligne de commande recommandée pour une utilisation interactive link:sujet1.html#anchors2[^2^]. Nous reviendrons par la suite sur APT. Pour la mise à jour du système, utilisez la commande suivante: +
+```bash
+  root@vm# apt update && apt full-upgrade
+```
+
+Laissez se terminer la mise à jour. Si cette dernière vous pose une question au sujet de GRUB, cochez la case [ ] /dev/sda à l’aide de la barre d’espacement. +
+Une fois la mise à jour terminée, comme il est probable qu’une nouvelle version du noyau ait été installée, redémarrez la machine virtuelle: +
+
+```bash
+  root@vm# reboot
+```
+****
+
+== Installations des outils utiles aux machines virtuelles
+****
+Installez les outils suivants : vim, less, tree, rsync et sudo.
+
+```bash
+  root@vm# apt install vim
+
+  root@vm# apt install less
+
+  root@vm# apt install tree
+
+  root@vm# apt install rsync
+
+  root@vm# apt install sudo
+```
+****
+
+== Changement de nom de machine
+****
+.Se rendre dans la machine virtuelle
+```bash
+    login@phys$ ssh vmjump
+```
+
+.Se connecter comme `root`
+```bash
+    user@vm$ su -
+```
+
+Rentrer le mot de passe pour `root`. +
+
+.Editer le fichier `/etc/hostname`
+```bash
+    root@vm# nano /etc/hostname
+```
+
+Changer le nom par le nom souhaité. +
+
+Sauvgarder la modification. +
+
+Redemarrer la machine avec `reboot`.
+
+Vous pouvez vérifier la modification après redémarrage de la machine virtuelle : +
+```
+    Avant changement, votre prompt est:
+        user@debian:~$ 
+    Après changement, votre prompt est:
+        user@matrix:~$
+```
+
+Vous devrez également modifier le fichier `/etc/hosts`.
+
+.Editer le fichier `/etc/hosts`
+```bash
+    root@vm# nano /etc/hosts
+```
+
+Trouver l'ancien nom de votre machine. +
+
+Le changer par le nouveau. +
+
+Sauvgarder la modification. +
+
+Redemarrer la machine avec `reboot`.
+
+Vous pouvez vérifier la modification et si tout a fonctionné :
+```bash
+    ping [nom de la machine]
+```
+****
+
+== Configuration de la commande sudo
+
+****
+sudo permet d’exécuter des commandes en tant qu’un autre utilisateur (en particulier root). À la différence de la commande su, on a pas besoin de connaître le mot de passe de l’utilisateur destination (root). +
+
+Le principe est que l’utilisateur `root` configure `sudo` en donnant des droits d’accès à certains utilisateurs pour certaines commandes.
+
+Tout d'abord installer `sudo`. (Rf : link:#_installations_des_outils_utiles_aux_machines_virtuelles[Installation de sudo])
+
+.Définir un utilisateur comme sudo
+```bash
+    root@vm# usermod -aG sudo [l'utilisateur]
+
+    ou
+
+    root@vm# adduser [l'utilisateur] sudo
+```
+
+Pour tester si tout a fonctionné, il faut tester une commande quelconque avec `sudo` : +
+```bash
+    root@vm# su user
+    user@vm# sudo [commande]
+```
+
+NOTE: Si on vous demande un mot de passe la première fois et que les fois suivante on ne vous en demande pas et que la commande fonctionne, c'est que tout a fontionné.
+****
+
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

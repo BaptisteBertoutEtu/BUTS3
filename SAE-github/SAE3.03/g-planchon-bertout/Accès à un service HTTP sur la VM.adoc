@@ -1,0 +1,80 @@
+= Accès à un service HTTP sur la VM
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Installation de nginx
+****
+Pour que le service que vous allez installer soit accessible de toutes les machines de TP de l’IUT, celui-ci doit écouter sur les interfaces réseaux de votre machine physique.
+
+Or, vous allez installer vos services dans votre machine virtuelle. link:#anchors[^1^] [[anchorsReturn]]
+
+.Installer le serveur HTTP nginx
+```bash
+    root@vm# apt-get install nginx
+```
+
+.Vérifier que celui-ci est démarré
+```bash
+    root@vm# sytemctl
+```
+
+.Installer le client HTTP en mode texte
+```bash
+    root@vm# apt-get install curl
+```
+
+.Vérifier qu'on puisse accéder au serveur nginx depuis la VM
+```bash
+    user@vm$ curl http://localhost
+```
+****
+
+== Accès au service depuis la machine physique
+
+****
+On souhaite maintenant pouvoir accéder au service qui s’exécute sur la machine virtuelle depuis la machine physique, malheureusement ce n'est pas possible car 
+
+Pour résoudre ce problème, nous allons nous servir de la fonction tunnel de SSH.
+
+.Utilisation de tunnel SSH
+```bash
+    login@phys$ ssh -L 0.0.0.0:9090:localhost:80 vmjump
+```
+
+.Vérification
+Dans un navigateur, essayez d'acceder à cette adresse : link:http://machine-physique.iutinfo.fr:9090[http://machine-physique.iutinfo.fr:9090]. +
+Si tout a fonctionné, la page web doit s'afficher.
+
+NOTE: En prenant soin de remplacer "*machine-physique*" par le nom de votre machine physique.
+
+
+Pour éviter l'utilisation de l'option `-L` systématiquement, nous devons modifier le fichier `.ssh/config`. +
+
+.Modifier le fichier .ssh/config
+```bash
+    login@phys$ nano $HOME/.ssh/config
+
+    Ajouter cette ligne dans la partie Host vmjump : LocalForward 0.0.0.0:9090 localhost:80
+```
+
+.Vérification de la modification
+```bash
+    login@phys$ ssh vmjump
+```
+
+Dans un navigateur, essayez d'acceder à cette adresse : link:http://machine-physique.iutinfo.fr:9090[http://machine-physique.iutinfo.fr:9090]. +
+Si tout a fonctionné, la page web doit s'afficher.
+
+NOTE: En prenant soin de remplacer "*machine-physique*" par le nom de votre machine physique.
+
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++
+
+[[anchors]] 1. Pour rappel, le réseau virtuel principal, dans lequel se situe votre VM, n’est accessible que depuis la machine de virtualisation. link:#anchorsReturn[<-] +

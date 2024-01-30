@@ -1,0 +1,49 @@
+= Général
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Plage d'adresse IP
+****
+Baptiste : 10.42.116.1-254
+Pierre : 10.42.171.1-254
+****
+
+== Un peu de vocabulaire et de convention
+****
+Afin de bien comprendre l'ensemble des procédures, voici le vocabulaire qui sera employé : +
+
+* *Machine physique* : la machine qui est devant vous. Celle sur laquelle vous êtes connecté.e.s dans la salle TP ;
+* *Machine de virtualisation* : la machine qui fera fonctionner vos machines virtuelles. Vous vous y connecterez à distance depuis la machine physique. Il s’agit d’un serveur dédié, situé dans la salle serveur du département ;
+* *Machine virtuelle* : une machine “émulée” par un logiciel de virtualisation. Les machines virtuelles seront accessibles via la machine de virtualisation ;
+* *Réseau physique* : il s’agit du réseau des salles de TP de l’IUT. Les machines physiques et de virtualisation y sont connectées directement via une de leur interface réseau (eth0 pour les salles de TP, ens10f0 pour le serveur) ;
+* *Réseau virtuel principal* : il s’agit d’un réseau virtuel, reliant la machine de virtualisation aux machines virtuelles s’y exécutant. Sur la machine de virtualisation, ce réseau correspond à l’interface lxcbr0.
+
+Les `prompts` indiqueront l'endroits où vous devrez saisir les commande.
+
+* `user` ou `root` indiqueront l'utilisateur qui devra saisir la commande, ils seront utilisé lorsque nous serons dans la machine virtuelle. A l'inverse, nous utiliserons `login` dans les autres cas.
+* `@phys` indique que la commande sera à saisir dans la machine physique.
+* `@virt` indique que la commande sera à saisir dans la machine de virtualisation.
+* `@vm` indique que la commande sera à saisir dans la machine virtuelle.
+* `@postgres` indique que la commande sera à saisir dans postgresql.
+****
+
+== Le déroulé de l'installation
+****
+WARNING: Toutes les procédures sont écrites de sortes à ce que vous devez suivre la procédure de haut en bas. En effet les procédures sont divisées par étapes, qui doivent être suivies dans le bon ordre pour un bon fonctionnement. Elles sont également divisé pour que vous puissiez trouver et recommencer une étapes précises du procéssus.
+
+* *1^ère^ étape* : Connexion à la machine de virtualisation.
+* *2^ème^ étape* : Créer et gérer des machines virtuelles.
+* *3^ème^ étape* : Installation de Postgresql.
+* *4^ème^ étape* : Accès à un service HTTP sur la VM.
+* *5^ème^ étape* : Installation de synapse.
+* *6^ème^ étape* : Installation d'Element Web.
+* *7^ème^ étape* : Installation d'un reverse proxy.
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

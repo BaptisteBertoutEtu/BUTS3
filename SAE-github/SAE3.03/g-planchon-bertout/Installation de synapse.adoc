@@ -1,0 +1,213 @@
+= Installation de Synapse
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Installation du paquet sous Debian
+****
+
+NOTE: Les instructions suivantes viennent de cette page link:https://matrix-org.github.io/synapse/latest/setup/installation.html#matrixorg-packages[dédiée à l'installation sous Debian]
+
+.Ensemble des instructions
+```bash
+    user@vm$ sudo apt install -y lsb-release wget apt-transport-https
+                 sudo wget -O /usr/share/keyrings/matrix-org-archive-keyring.gpg https://packages.matrix.org/debian/matrix-org-archive-keyring.gpg
+                 echo "deb [signed-by=/usr/share/keyrings/matrix-org-archive-keyring.gpg] https://packages.matrix.org/debian/ $(lsb_release *-cs) main" | sudo tee /etc/apt/sources.list.d/matrix-org.list
+                 sudo apt update
+                 sudo apt install matrix-synapse-py3
+```
+WARNING: Pour le bon fonctionnement de la commande, il faut prendre l'ensemble des lignes et les collées dans le terminal en même temps.
+
+
+
+* A l’installation, le gestionnaire de paquets vous demande le nom de votre instance. Vous devez indiquer `machine-physique.iutinfo.fr:8008.` 
+
+WARNING: Bien indiquer le port "*8008*" et à remplacer "*machine-physique*" par le nom de votre
+machine physique.
+
+* Le serveur écrira ses messages à destination de l’administrateur (les logs) dans le fichier `/var/log/matrix-synapse/homeserver.log`.
+
+****
+
+== Paramétrage de l’accès à distance
+
+****
+Par défaut, synapse écoute uniquement sur l’interface de boucle locale. +
+Pour que l’on puisse y accéder depuis l’extérieur de la machine virtuelle, il doit écouter également sur l’interface située dans le réseau `10.42.0.0/16`. +
+
+.Modification du fichier
+```bash
+    root@vm# nano /etc/matrix-synapse/homeserver.yaml
+
+    Vous pouvez voir la ligne suivante : bind_addresses: ['::1', '127.0.0.1']
+
+    Il faut rajouter votre addresse IP dans ce tableau, ce qui donnerait : bind_addresses: ['::1', '127.0.0.1', 'votre adresse IP']
+```
+****
+
+== Paramétrage spécifique pour une instance dans un réseau privé
+
+****
+
+Notre serveur n’est pas accessible depuis internet. En production réelle, on voudrait qu’il le soit. Les paramètres par défaut de Synapse considèrent donc que votre serveur est accessible de l’extérieur et qu’il ne cherche pas à contacter des éléments situés sur un réseau privé. En particulier, on ne veut pas que notre serveur contacte d’autres serveurs pour obtenir des clés publiques de signatures. On va donc appliquer la documentation en affectant la variable de configuration trusted_key_servers à [].
+
+.Modification du fichier homeserver.yaml
+```bash
+    user@vm$ sudo nano /etc/matrix-synapse/homeserver.yaml
+```
+
+.Modification des 2 dernières lignes
+* Ajouter `[]` à la ligne : `trusted_key_servers`. Ce qui donne : `trusted_key_servers: []`
+* Mettre la ligne du dessous en commentaire. Ajouter `#` au début de cette ligne.
+
+****
+
+== Utilisation d’une base Postgres
+
+****
+
+Par défaut, Synapse utilise une base de données au format fichier `sqlite`, ce qui est très bien pour tester, mais pas suffisant pour une instance en production. Pour cela nous devons configurer notre serveur pour qu'il utilise une base `postgres` et pas un fichier `sqlite`.
+
+.Modification du fichier homeserveur.yaml
+```bash
+    user@vm$ sudo nano /etc/matrix-synapse/homeserver.yaml
+```
+
+.Modifier le contenu de `database`
+```bash
+    database:
+    name: psycopg2
+    args:
+        user: <nom_user>
+        password: <mot_de_passe>
+        database: <nom_database>
+        host: <nom_host>
+        cp_min: 5
+        cp_max: 10
+```
+
+WARNING: il y a une autre ligne (juste après) contenant `database: /var/lin/matrix-synapse/homeserver.db`. Il faut la mettre en commentaires avec un `#`.
+
+Pour la suite de la configuration nous devons supprimer la base de donnée que nous avions créé auparavant. Pour cela : +
+
+.Connection à postgres
+```bash
+    user@vm$ sudo su -l postgres
+```
+
+.Vérification de l'existance de la base de donnée
+```bash
+    user@postgres$ psql -l
+```
+NOTE: Cette commande liste l'ensemble de vos bases de données, vous pouvez donc vérifier visuellement l'existance de votre base de donnée.
+
+.Suppréssion de la base de donnée
+```bash
+    user@postgres$ dropdb <nom_database>
+```
+
+Ensuite vous devez recréer une base de donnée.
+
+.Création de la base de donnée
+```bash
+    user@postgres$ createdb --encoding=UTF8 --locale=C --template=template0 --owner=<nom_owner> <nom_database>
+```
+
+.Vérification de la création de la base de donnée
+```bash
+    user@postgres$ psql -l
+```
+
+.Vérification du bon fonctionnement de la manipulation
+```bash
+    Ctrl + D pour quitter postgres.
+
+    user@vm$ sudo systemctl restart matrix-synapse.service 
+```
+* Si aucune erreur ne s'affiche, c'est que l'ensemble de la manipulation c'est bien passée. Cette commande permet de redémarrer synapse et de vérifier qu'il n'y a aucun soucis.
+
+****
+
+== Création d'utilisateurs
+
+****
+Pour créer un utilisateur sur votre serveur, vous devez utiliser le script (installé avec le serveur Synapse) `register_new_matrix_user`.
+
+Pour la création d'utilisateurs il faut spécifier une clé partagée d’enregistrement dans la configuration du script.
+
+.Spécification de la clé
+```bash
+    user@vm$ sudo nano /etc/matrix-synapse/homeserver.yaml
+
+    Sur la dernière ligne, ajouter :
+
+    registration_shared_secret: <PRIVATE STRING>
+```
+NOTE: <PRIVATE STRING> représente ici une clé que vous allez créer de toute pièce. A vous donc de créer une clé secrète de votre choix.
+
+
+.Création d'un utilisateur
+```bash
+    user@vm$ sudo register_new_matrix_user -k <PRIVATE STRING>
+```
+NOTE: Veillez à bien remplacer <PRIVATE STRING> par votre clé secrète.
+
+Suite à cette commande, la création d'un nouvel utilisateur se lance. Vous devez définir le nom et le mot de passe. Vous avez également la possibilité de définir le nouvel utilisateur en tant qu'administrateur, pour cela vous devez indiquer "yes".
+
+****
+
+== Connexion à votre serveur Matrix
+
+****
+
+Se rendre sur link:http://tp.iutinfo.fr:8888/[http://tp.iutinfo.fr:8888/].
+
+Choisir un autre serveur d'acceuil : `http://[machine physique].iutinfo.fr:8008`.
+
+NOTE: Veillez à bien remplace *[machine physique]* par le nom de votre machine physique.
+
+Si il n'y a pas d'erreur c'est que le serveur est bien reconnu.
+
+Si il y a une erreur : 
+
+* Retournez à la section *Paramétrage de l'accès à distance* et changez `127.0.0.1` par `0.0.0.0`.
+* Redémarrer le serveur : `user@matrix$ sudo systemctl restart matrix-synapse.service`
+
+Une fois que le serveur est bien reconnu, rentrez les identifiants de l'utilisateur créé à l'étape précédente pour se connecter.
+
+Libre à vous par la suite de créer un salon et d'inviter un autre utilisateur à discuter.
+
+****
+
+== Activation de l’enregistrement des utilisateurs
+
+****
+
+Pour l’instant, votre serveur n’accepte pas les nouveaux utilisateurs. Pour activer vous devez suivre les étapes ci-dessous.
+
+.Modification du fichier `homeserver.yaml`
+```bash
+    user@vm$ sudo nano /etc/matrix-synapse/homeserver.yaml 
+```
+
+.Ajout des lignes nescessaires
+```bash
+    enable_registration: true
+    enable_registration_without_verification: true
+```
+
+.Redémarrage du serveur
+```bash
+    user@vm$ sudo systemctl restart matrix-synapse
+```
+
+Le serveur accepte maintenant les nouveaux utilisateurs.
+
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

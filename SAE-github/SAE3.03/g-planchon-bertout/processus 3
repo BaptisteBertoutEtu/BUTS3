@@ -57,7 +57,7 @@ trusted_key_servers: [] --> ajouter le []
 la ligne en dessous il faut la mettre en commentaire avec un #
 
 2.4
-Utilisation d’une base Postgres
+#Utilisation d’une base Postgres
 //toujours dans le fichier de config :
 sudo nano /etc/matrix-synapse/homeserver.yaml
 //modifier le contenu de database:
@@ -98,5 +98,26 @@ registration_shared_secret: <PRIVATE STRING> --> écrire une clé secrète au ch
 //fermer le fichier et écrire la commande suivante :
 sudo register_new_matrix_user -k secret
 //ça lance la création d'un user,
-//il faut rentrer le nom le password et mettre 'no' pour Make admin.
+//il faut rentrer le nom le password et mettre 'yes' pour Make admin.
 //regarder le résultat
+
+2.6
+#Connexion à votre serveur Matrix
+aller sur : http://tp.iutinfo.fr:8888/
+choisir un autre serveur d'accueil : http://[machine physique].iutinfo.fr:8008
+si pas d'erreur c'est que le serveur est bien reconnu, sinon essayer : 
+sudo nano /etc/matrix-synapse/homeserver.yaml
+modifier bien_addresses en : ['::1', '0.0.0.0']
+redemarrer le serveur : sudo systemctl restart matrix-synapse.service
+une fois que le serveur est bien reconnu, rentrer les identifiants de l'utilisateur créé à l'étape précédente pour se connecter.
+libre à vous de créer un salon et d'inviter un autre utilisateur à discuter.
+
+2.7
+#activation de l'enregistrement des utilisateurs
+connecté en user dans matrix :
+sudo nano /etc/matrix-synapse/homeserver.yaml 
+ajouter ces 2 lignes à la fin du fichier :
+enable_registration: true
+enable_registration_without_verification: true
+puis il faut redemarrer le serveur pour que les modifications soient prises en compte :
+user@matrix:~$ sudo systemctl restart matrix-synapse

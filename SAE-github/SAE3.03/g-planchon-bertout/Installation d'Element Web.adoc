@@ -1,0 +1,35 @@
+= Installation d'Element Web
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Choix du serveur Web
+****
+Nous allons choisir nginx pour faire le déploiement d'Element Web
+car il permet une gestion efficace des connexions et la configuration
+pour le proxy inverse est simple.
+****
+
+== Configuration de Element Web
+****
+Pour configurer Element avec nginx il faut modifier la partie server dans le fichier suivant : `/etc/nginx/sites-available/default`.
+
+.Modification du fichier
+```bash
+    user@vm$ sudo nano /etc/nginx/sites-available/default
+```
+
+.Modifier la partie server
+```bash
+server{
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
+```
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

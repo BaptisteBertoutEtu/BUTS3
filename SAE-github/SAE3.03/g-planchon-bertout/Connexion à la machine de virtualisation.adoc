@@ -1,0 +1,111 @@
+= Connexion à la machine de virtualisation
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Première connexion à la machine de virtualisation
+
+.Machine de virtualisation :
+****
+La machine de virtualisation est la suivante :  *dattier.iutinfo.fr* +
+
+Afin de vous connecter sur la machine de virtualisation utilisez la commande suivante : +
+```bash
+    login@phys$ ssh dattier.iutinfo.fr
+```
+
+Une fois la commande lancée, si vous ne vous étiez jamais connecté en SSH sur la machine indiquée, vous aurez un affichage similaire à celui-ci, ne validez rien tant que vous n’aurez pas effectué les vérifications indiquées après: +
+```
+    The authenticity of host 'dattier.iutinfo.fr (172.18.48.20)' can't be established.
+    ED25519 key fingerprint is SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg. +
+    This key is not known by any other names +
+    Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+Ce message vous indique que votre client SSH ne peut vérifier l’identité du serveur SSH. Il vous demande si vous souhaitez faire confiance à ce serveur. +
+
+Pour vérifier si le serveur SSH est bien celui auquel vous pensez vous connecter, il faut vérifier l’empreinte de sa clé. +
+
+Les empreintes des clés du serveur de virtualisation sont les suivantes (une clé différente par algorithme supporté par le serveur): +
+
+Utilisez cette liste pour vérifier l’empreinte de la clé et uniquement si celle-ci correspond, répondez yes à la question de votre client SSH. Votre client SSH ajoutera alors le serveur dans le fichier `$HOME/.ssh/known_hosts` pour indiquer que vous lui faites
+confiance.
+
+|===
+| | Fingerprint | Machine | Algo
+
+| 3072 | SHA256:mPCb5nJD8F6YOg/aDCRjqF/ZW3Ei9iLpzXw5UDCIH8g | dattier.iut-infobio.priv.univ-lille1.fr | (RSA)
+| 256 | SHA256:+XNYpzmoYKDnwaB1xqCA2Yu7mBZEK5zvtfXYw1zDO1Y | dattier.iut-infobio.priv.univ-lille1.fr | (ECDSA)
+| 256 | SHA256:QynRpdPucTVcwhMrD3824pqUviVFCgPwxwhkDyGyVSg | dattier.iut-infobio.priv.univ-lille1.fr | (ED25519)
+|===
+
+Après avoir répondu yes, saisissez votre mot de passe quand il vous est demandé. Vous obtenez alors un shell qui vous permet d’exécuter des commandes sur la machine de virtualisation.
+
+****
+
+== Faciliter la connexion à la machine de virtualisation
+
+Pour mettre en place ce que nous venons de décrire, nous devons réaliser ces étapes:
+
+=== Création d'une paire de clé :
+****
+Dans la machine physique : +
+```bash
+  login@phys$ ssh-keygen
+```
+Suite à cette commande, on vous demandera deux choses : +
+
+1. un nom de fichier : vous pouvez laisser le nom de fichier par défaut.
+2. une _passphrase_: c’est un mot de passe qui permet de chiffrer le fichier contenant votre clé privé. Il est très important d’utiliser un mot de passe pertinent. Ainsi, si on vous vole le fichier, le voleur ne pourra pas se servir de votre clé.
+****
+
+
+=== Transmission de la clé publique au serveur : 
+****
+Quand un utilisateur tente de se connecter à un serveur SSH, celui-ci consulte le fichier `$HOME/.ssh/authorized_keys`link:#anchors[^1^] [[anchorsReturn]] à la recherche de clés publiques autorisées à se connecter pour l’utilisateur. +
+
+Si vous regardez le contenu du fichier `$HOME/.ssh/id_rsa.pub` (cette fois côté client), vous verrez qu’il respecte le même format, à la différence qu’il ne contient qu’une seule clé (et donc qu’une seule ligne). +
+
+Pour transmettre votre clé au serveur, il suffit donc d’ajouter le contenu du fichier id_rsa.pub (de votre machine physique) au
+fichier authorized_keys (de votre machine de virtualisation) +
+
+Pour cela nous allons utiliser la commande suivante : +
+```bash
+  login@phys$ ssh-copy-id -i $HOME/.ssh/id_rsa.pub dattier.iutinfo.fr
+```
+
+Par la suite essayer de vous connecter à `dattier.iutinfo.fr`.
+
+```bash
+  login@phys$ ssh dattier.iutinfo.fr
+```
+
+Un mot de passe va vous être demandé. Il sagit de votre passphrase.
+****
+
+=== Création d'un alias pour faciliter la connexion.
+****
+Se rendre sur la machine physique. +
+Se rendre dans le fichier `$HOME/.ssh/config`.
+
+.créer un alias `virt` + transfert de l'agent SSH
+```bash
+  Host virt
+    Hostname dattier.iutinfo.fr
+    ForwardAgent yes
+```
+
+.Utilisation des alias
+```bash
+  login@phys$ ssh virt
+```
+****
+
+[[anchors]] 1. Ici `$HOME` représente le répertoire home de l’utilisateur sur le serveur sur lequel celui-ci tente de se connecter. link:#anchorsReturn[<-] +
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

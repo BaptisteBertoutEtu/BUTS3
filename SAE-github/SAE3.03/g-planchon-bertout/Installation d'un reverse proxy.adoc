@@ -1,0 +1,117 @@
+= Installation d'un reverse proxy
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Création d'une nouvelle machine virtuelle
+****
+Dans un premier temps, pour notre reverse proxy nous allons créer une nouvelle machine virtuelle que nous allons appeler `revproxy`.
+
+Pour cela, suivez la procédure appelée `Créer et gérer des machines virtuelles` avec : +
+
+* Pour nom de machine : `revproxy`.
+* Addresse ip : 10.42.xx.2.
+
+NOTE: 10.42.xx.2 pour nous signifie que nous prenons la plage d'adresse IP qui nous correspond.
+
+Installer l'ensemble des outils comme expliqué dans la procédure précédente, et installer `nginx` comme expliqué dans la procédure `Accès à un service HTTP sur la VM` mais ne suivez que l'étape de l'installation de `nginx`.
+
+.On crée un nouvelle alias
+```bash
+    login@phys$ nano ~/.ssh/config
+```
+
+.Ajouter ceci à la fin du fichier
+```bash
+Host revproxy
+    Hostname <adresse_ip>
+    ProxyJump virt
+    User user
+    LocalForward 0.0.0.0:9090 localhost:80
+    ForwardAgent yes
+```
+
+Une fois tout cela effectué, nous allons installer le reverse proxy.
+
+Connectez-vous à `revproxy` par le biais de l'alias.
+
+Puis : +
+
+.Modifiez le fichier suivant
+```bash
+    root@vm# nano /etc/nginx/nginx.conf
+```
+
+.Ajouter ceci dans la partie HTTP
+```bash
+http{
+    server{
+            listen localhost:80
+            location / {
+                    proxy_pass http://10.42.171.2:8080
+            }
+    }
+```
+
+Le reverse proxy est désormais activé, on peut donc changer notre config ssh : +
+
+.Modification de l'alias de virt
+```bash
+    login@phys$ nano .ssh/config
+```
+
+.Modification de localhost par l'adresse du reverse proxy
+```bash
+Host virt
+    Hostname dattier.iutinfo.fr
+    ForwardAgent yes
+    LocalForward 0.0.0.0:9090 <adresse_ip_revproxy>:80
+```
+****
+
+== Pour un bon fonctionnement
+****
+
+.Arreter synapse dans matrix
+```bash
+    user@vm:~$ sudo systemctl stop matrix-synapse.service 
+```
+
+.Vérification du port
+```bash
+    user@vm:~$ sudo nano /etc/matrix-synapse/conf.d/server_name.yaml
+```
+NOTE: Le port doit correspondre à 9090 dans la partie server_name.
+
+.Connexion à postgresql
+```bash
+    user@vm:~$ sudo su -l postgres
+```
+
+.Suppression de la base de donnée
+```bash
+    admin@postgres:~$ dropdb <nom_database>
+```
+
+.Création d'une nouvelle base de donnée
+```bash
+    admin@postgres:~$ createdb --encoding=UTF8 --locale=C --template=template0 --owner=<nom_owner> <nom_database>
+```
+
+.Sortir de postgresql
+```bash
+    admin@postgres:~$ exit
+```
+
+.Démarrer synapse
+```bash
+    user@vm:~$ sudo systemctl start matrix-synapse.service
+```
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

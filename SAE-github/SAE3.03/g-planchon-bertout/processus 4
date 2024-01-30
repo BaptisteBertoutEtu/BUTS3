@@ -1,0 +1,146 @@
+1 - Element Web
+
+Nous allons choisir nginx pour faire le déploiement d'Element Web
+car il permet une gestion efficace des connexions et la configuration
+pour le proxy inverse est simple.
+Pour configurer Element avec nginx il faut modifier la partie server
+dans le fichier suivant : /etc/nginx/sites-available/default
+
+sudo nano /etc/nginx/sites-available/default
+
+puis la parie server doit ressembler correspondre à cela :
+server{
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
+.
+.
+.
+
+Il faudra faire cette étape pour la vm revproxy.
+
+2 - Reverse proxy pour Synapse
+2.1 - Intro et choix d'un reverse proxy 
+
+Reverse proxy : serveur intermédiaire entre utilisateurs et serveurs d'origine.
+Nginx fonctionne comme cela mais ce n'est pas le seul, il y aussi Apache ou encore Traefik.
+Comme reverse proxy nous utiliserons Nginx (compatibilité élevé + amélioration des performances).
+
+2.2 - installation d'un reverse proxy 
+Dans un premier temps, pour notre reverse proxy nous allons créer une nouvelle VM : 
+
+pierre.planchon.etu@dattier:~$ vmiut creer revproxy
+Virtual machine 'revproxy' is created and registered.
+UUID: c85df492-a949-4cc2-9af3-0103e55073b1
+Settings file: '/datas/virtual_machine/infoetu/pierre.planchon.etu/vbox_vms/revproxy/revproxy.vbox'
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+Clone medium created in format 'VMDK'. UUID: 7bef0263-b379-4d37-9f1e-59c0b443ecec
+# Paramètres vmiut
+MACHINE=revproxy
+VBOXES=/datas/virtual_machine/infoetu/pierre.planchon.etu/vbox_vms
+RESEAU=vboxtap0
+MEMOIRE=1024
+VRDEPORT=12630-12639
+MODELE=/home/public/vm/disque-bookworm-12.2-20go.vdi
+HOTE=dattier
+
+# Paramètres VirtualBox
+name=revproxy
+UUID=c85df492-a949-4cc2-9af3-0103e55073b1
+path=/datas/virtual_machine/infoetu/pierre.planchon.etu/vbox_vms/revproxy
+memory=1024
+etat=poweroff
+vrdeport=-1
+mac=08:00:27:f7:fa:28
+
+Pour s'y connecter, il nous faut l'adresse IP : on doit donc la démarrer :
+
+pierre.planchon.etu@dattier:~$ vmiut start revproxy
+Waiting for VM "revproxy" to power on...
+VM "revproxy" has been successfully started.
+
+pierre.planchon.etu@dattier:~$ vmiut info revproxy
+# Paramètres vmiut
+MACHINE=revproxy
+VBOXES=/usr/local/virtual_machine/infoetu/pierre.planchon.etu/vbox_vms
+RESEAU=vboxtap0
+MEMOIRE=1024
+VRDEPORT=12630-12639
+MODELE=/home/public/vm/disque-bookworm-12.2-20go.vdi
+HOTE=dattier
+
+# Paramètres VirtualBox
+name=revproxy
+UUID=c85df492-a949-4cc2-9af3-0103e55073b1
+path=/datas/virtual_machine/infoetu/pierre.planchon.etu/vbox_vms/revproxy
+memory=1024
+etat=running
+vrdeport=12631
+mac=08:00:27:f7:fa:28
+ip-possible=10.42.45.55
+
+La dernière ligne nous donne notre adresse IP, on va donc l'associer à 10.42.171.2
+(10.42.171.1 étant déja pris par matrix).
+Pour ce faire, il faut se connecter à la VM en console et changer sa configuration réseau :
+(-X permet d'ouvrir la fenetre)
+pierre.planchon.etu@acajou07:~$ ssh -X virt
+pierre.planchon.etu@dattier:~$ vmiut console revproxy
+
+une fois dans la console, on se connecte en root et on change la config. (voir procédure 1).
+on installe également nginx et sudo: 
+apt-get install nginx
+apt-get install sudo
+on donne les droits sudo à user :
+usermod -aG sudo user
+reboot
+
+de retour sur la machine physique : nano ~/.ssh/config
+ajouter à la fin :
+    Host revproxy
+    Hostname 10.42.171.2
+    ProxyJump virt
+    User user
+    LocalForward 0.0.0.0:9090 localhost:80
+    ForwardAgent yes
+
+Une fois fait, on va installer le reverse proxy : 
+il faut donc se connecter à revproxy (ssh revproxy) puis modifier (avec les droits sudo) le fichier /etc/nginx/nginx.conf
+dans la partie http, on rajoute une partie server :
+
+http{
+    server{
+            listen localhost:80
+            location / {
+                    proxy_pass http://10.42.171.2:8080
+            }
+    }
+.
+.
+.
+
+Le reverse proxy est désormais activé, on peut donc changer notre config ssh :
+pierre.planchon.etu@acajou07:~$ nano .ssh/config 
+
+Host virt
+    Hostname dattier.iutinfo.fr
+    ForwardAgent yes
+    LocalForward 0.0.0.0:9090 10.42.171.2:80
+
+.
+.
+.
+
+En effet, nous avons juste remplacer 'localhost' par l'adresse ip associé à notre reverse proxy.
+
+Pour que tout fonctionne correctement: 
+s'assurer d'avoir fait l'étape 1 pour revproxy aussi
+user@matrix:~$ sudo systemctl stop matrix-synapse.service 
+user@matrix:~$ sudo nano /etc/matrix-synapse/conf.d/server_name.yaml (vérifier que le port est bien sur 9090)
+server_name: acajou07.iutinfo.fr:9090
+user@matrix:~$ sudo su -l postgres
+postgres@matrix:~$ dropdb matrix
+postgres@matrix:~$ createdb --encoding=UTF8 --locale=C --template=template0 --owner=matrix matrix
+postgres@matrix:~$ exit
+déconnexion
+user@matrix:~$ sudo systemctl start matrix-synapse.service 
+
+

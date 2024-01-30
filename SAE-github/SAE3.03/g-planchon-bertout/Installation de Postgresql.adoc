@@ -1,0 +1,71 @@
+= Installation de Postgresql
+Bertout Baptiste <author>; Planchon Pierre <author>
+:toc-title: Table des matières
+:toc: left
+:toclevels: 5
+:icons: font
+:experimental:
+
+== Installer postgresql
+****
+```bash
+    root@vm# apt install postgresql postgresql-client
+```
+****
+
+== Vérifier le démarrage
+****
+```bash
+    root@vm# systemctl status postgresql
+```
+
+Si le service n'est pas démarré, ni activer au démarrage, on active et on démarre ainsi : 
+```bash
+    root@vm# systemctl enable --now postgresql
+```
+****
+
+== Se connecter à postgresql
+****
+```bash
+    root@vm# su -l postgres
+```
+****
+
+== Création d'un utilisateur
+****
+```bash
+    admin@postgres# createuser -WPd [nom de l'utilisateur]
+```
+
+Et entrer un mot de passe
+****
+
+== Suppression d'un utilisateur
+****
+Si vous rencontrer des problèmes avec un des utilisateurs vous pouvez le supprimer :
+```bash
+    admin@postgres# dropuser [nom de l'utilisateur]
+```
+
+WARNING: Si vous avez créé une base de donnée avec comme propriétaire l'utilisateur que vous voulez supprimer, vous devez d'abord supprimer la base de donnée.
+****
+
+== Création d'une base de donnée
+****
+```bash
+    admin@postgres# createdb --encoding=UTF8 --locale=C --template=template0 --owner=[nom de l'utilisateur propriétaire] [nom de la base]
+```
+****
+
+== Surppression d'une base de donnée
+****
+Si vous rencontrer des problèmes avec une des bases de données vous pouvez la supprimer :
+```bash
+    admin@postgres# dropdb [nom de la base de donnée]
+```
+****
+
+++++
+<link rel="stylesheet" type="text/css" href="override.css">
+++++

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="Bertout Baptiste, Planchon Pierre">
-<title>Sujet n°2</title>
+<title>Accès à un service HTTP sur la VM</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,7 +440,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Sujet n°2</h1>
+<h1>Accès à un service HTTP sur la VM</h1>
 <div class="details">
 <span id="author" class="author">Bertout Baptiste</span><br>
 <span id="email" class="email">author</span><br>
@@ -450,143 +450,130 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table des matières</div>
 <ul class="sectlevel1">
-<li><a href="#_dernière_configurations_sur_la_vm">Dernière configurations sur la VM</a></li>
-<li><a href="#_installation_et_configuration_basique_dun_serveur_de_base_de_données">Installation et configuration basique d’un serveur de base de données</a></li>
+<li><a href="#_installation_de_nginx">Installation de nginx</a></li>
+<li><a href="#_accès_au_service_depuis_la_machine_physique">Accès au service depuis la machine physique</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_dernière_configurations_sur_la_vm">Dernière configurations sur la VM</h2>
+<h2 id="_installation_de_nginx">Installation de nginx</h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Changement de nom de machine</div>
 <div class="paragraph">
-<p>Se rendre dans la machine virtuelle.<br>
-Editer le fichier <code>/etc/hostname</code>.<br>
-Changer le nom par le nom souhaité.<br>
-Sauvgarder la modification.<br></p>
+<p>Pour que le service que vous allez installer soit accessible de toutes les machines de TP de l’IUT, celui-ci doit écouter sur les interfaces réseaux de votre machine physique.</p>
 </div>
 <div class="paragraph">
-<p>Vous pouvez vérifier la modification après redémarrage de la machien virtuelle avec la commande <code>reboot</code>.</p>
+<p>Or, vous allez installer vos services dans votre machine virtuelle. <a href="#anchors"><sup>1</sup></a> <a id="anchorsReturn"></a></p>
 </div>
-<div class="paragraph">
-<p>Editer le fichier <code>/etc/hosts</code>.<br>
-Trouver l&#8217;ancien nom de votre machine.<br>
-Le changer par le nouveau.<br>
-Sauvgarder la modification.<br></p>
-</div>
-<div class="paragraph">
-<p>Vous pouvez vérifier la modification et si tout a fonctionné avec la commande <code>ping [nom de la machine]</code>.</p>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
+<div class="listingblock">
+<div class="title">Installer le serveur HTTP nginx</div>
 <div class="content">
-<div class="title">Installation et configuration de la commande sudo</div>
-<div class="paragraph">
-<p>Installer <code>sudo</code> avec la commande <code>apt install sudo</code>.</p>
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# apt-get install nginx</code></pre>
 </div>
-<div class="paragraph">
-<p>Définir un utilisateur comme sudo : (en tant que root)<br>
-* <code>usermod -aG sudo "l&#8217;utilisateur"</code><br>
-ou<br>
-* <code>adduser "l&#8217;utilisateur" sudo</code></p>
 </div>
-<div class="paragraph">
-<p>Pour tester si tout a fonctionné, il faut tester une commande quelconque avec <code>sudo</code> :<br>
-<code>root@matrix:~# su user</code><br>
-<code>user@matrix:~# sudo [commande]</code></p>
+<div class="listingblock">
+<div class="title">Vérifier que celui-ci est démarré</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# sytemctl</code></pre>
 </div>
-<div class="paragraph">
-<p>Si on ne vous demande pas de mot de passe et que la commande fonctionne, c&#8217;est que tout a fontionné.</p>
+</div>
+<div class="listingblock">
+<div class="title">Installer le client HTTP en mode texte</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    root@vm# apt-get install curl</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Vérifier qu&#8217;on puisse accéder au serveur nginx depuis la VM</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    user@vm$ curl http://localhost</code></pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_installation_et_configuration_basique_dun_serveur_de_base_de_données">Installation et configuration basique d’un serveur de base de données</h2>
+<h2 id="_accès_au_service_depuis_la_machine_physique">Accès au service depuis la machine physique</h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Installer postgresql</div>
 <div class="paragraph">
-<p>Installer postgresql : <code>apt install postgresql postgresql-client</code></p>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Vérifier le démarrage</div>
-<div class="paragraph">
-<p>Vérifier qu&#8217;il est bien activé et démarré : <code>systemctl status postgresql</code></p>
+<p>On souhaite maintenant pouvoir accéder au service qui s’exécute sur la machine virtuelle depuis la machine physique, malheureusement ce n&#8217;est pas possible car</p>
 </div>
 <div class="paragraph">
-<p>Si le service n&#8217;est pas démarré, ni activer au démarrage, on active et on démarre ainsi : <code>systemctl enable --now postgresql</code></p>
+<p>Pour résoudre ce problème, nous allons nous servir de la fonction tunnel de SSH.</p>
 </div>
-</div>
-</div>
-<div class="sidebarblock">
+<div class="listingblock">
+<div class="title">Utilisation de tunnel SSH</div>
 <div class="content">
-<div class="title">Création d&#8217;un utilisateur</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>createuser -WPd [nom de l&#8217;utilisateur]</code> avec -W ce qui permet de mettre le mot de passe directement.</p>
-</li>
-</ul>
+<pre class="highlight"><code class="language-bash" data-lang="bash">    login@phys$ ssh -L 0.0.0.0:9090:localhost:80 vmjump</code></pre>
 </div>
 </div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Crétaion d&#8217;une base de donnée</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>createdb [nom de la base] -O [nom de l&#8217;utilisateur propriétaire]</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Suppression d&#8217;un utilisateur</div>
 <div class="paragraph">
-<p>Si vous rencontrer des problèmes avec un des utilisateurs vous pouvez le supprimer avec  la commande : <code>dropuser [nom de l&#8217;utilisateur]</code></p>
+<div class="title">Vérification</div>
+<p>Dans un navigateur, essayez d&#8217;acceder à cette adresse : <a href="http://machine-physique.iutinfo.fr:9090">http://machine-physique.iutinfo.fr:9090</a>.<br>
+Si tout a fonctionné, la page web doit s&#8217;afficher.</p>
 </div>
-<div class="admonitionblock warning">
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Si vous avez créé une base de donnée avec comme propriétaire l&#8217;utilisateur que vous voulez supprimer, vous devez d&#8217;abord supprimer la base de donnée.
+En prenant soin de remplacer "<strong>machine-physique</strong>" par le nom de votre machine physique.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Pour éviter l&#8217;utilisation de l&#8217;option <code>-L</code> systématiquement, nous devons modifier le fichier <code>.ssh/config</code>.<br></p>
+</div>
+<div class="listingblock">
+<div class="title">Modifier le fichier .ssh/config</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    login@phys$ nano $HOME/.ssh/config
+
+    Ajouter cette ligne dans la partie Host vmjump : LocalForward 0.0.0.0:9090 localhost:80</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Vérification de la modification</div>
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">    login@phys$ ssh vmjump</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Dans un navigateur, essayez d&#8217;acceder à cette adresse : <a href="http://machine-physique.iutinfo.fr:9090">http://machine-physique.iutinfo.fr:9090</a>.<br>
+Si tout a fonctionné, la page web doit s&#8217;afficher.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+En prenant soin de remplacer "<strong>machine-physique</strong>" par le nom de votre machine physique.
 </td>
 </tr>
 </table>
 </div>
 </div>
 </div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Surppression d&#8217;une base de donnée</div>
-<div class="paragraph">
-<p>Si vous rencontrer des problèmes avec une des bases de données vous pouvez la supprimer avec la commande <code>dropdb [nom de la base de donnée]</code></p>
-</div>
-</div>
-</div>
 <link rel="stylesheet" type="text/css" href="override.css">
+<div class="paragraph">
+<p><a id="anchors"></a> 1. Pour rappel, le réseau virtuel principal, dans lequel se situe votre VM, n’est accessible que depuis la machine de virtualisation. <a href="#anchorsReturn">&#8592;</a><br></p>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-11-10 11:08:56 +0100
+Last updated 2024-01-19 19:07:13 +0100
 </div>
 </div>
 </body>
